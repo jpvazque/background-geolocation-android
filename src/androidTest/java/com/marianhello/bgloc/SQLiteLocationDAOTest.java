@@ -51,7 +51,7 @@ public class SQLiteLocationDAOTest {
         location.setSpeed(20);
         location.setProvider("test");
         location.setTime(1000);
-        BackgroundLocation bgLocation = new BackgroundLocation(location);
+        BackgroundLocation bgLocation = new BackgroundLocation(location, ctx);
 
         dao.persistLocation(bgLocation);
 
@@ -101,7 +101,7 @@ public class SQLiteLocationDAOTest {
         SQLiteDatabase db = new SQLiteOpenHelper(ctx).getWritableDatabase();
         SQLiteLocationDAO dao = new SQLiteLocationDAO(db);
 
-        BackgroundLocation bgLocation = new BackgroundLocation(new Location("fake"));
+        BackgroundLocation bgLocation = new BackgroundLocation(new Location("fake"), ctx);
         Collection<BackgroundLocation> locations = null;
 
         Long locationId = dao.persistLocation(bgLocation);
@@ -124,7 +124,7 @@ public class SQLiteLocationDAOTest {
         Collection<BackgroundLocation> locations = null;
 
         for (int i = 0; i < 10; i++) {
-            dao.persistLocation(new BackgroundLocation(new Location("fake")));
+            dao.persistLocation(new BackgroundLocation(new Location("fake"), ctx));
         }
 
         locations = dao.getValidLocations();
@@ -155,7 +155,7 @@ public class SQLiteLocationDAOTest {
             location.setSpeed(20 + i);
             location.setProvider("test");
             location.setTime(1000 + i);
-            bgLocation = new BackgroundLocation(location);
+            bgLocation = new BackgroundLocation(location, ctx);
             dao.persistLocation(bgLocation);
         }
 
@@ -183,7 +183,7 @@ public class SQLiteLocationDAOTest {
         SQLiteLocationDAO dao = new SQLiteLocationDAO(db);
 
         for (int i = 0; i < maxRows * 2; i++) {
-            dao.persistLocation(new BackgroundLocation(new Location("fake")), maxRows);
+            dao.persistLocation(new BackgroundLocation(new Location("fake")), maxRows, ctx);
         }
 
         Collection<BackgroundLocation> locations = dao.getAllLocations();
@@ -200,13 +200,13 @@ public class SQLiteLocationDAOTest {
         for (int i = 0; i < maxRowsRun.length; i++) {
             int maxRows = maxRowsRun[i];
             for (int j = 0; j < maxRows * 2; j++) {
-                dao.persistLocation(new BackgroundLocation(new Location("fake")), maxRows);
+                dao.persistLocation(new BackgroundLocation(new Location("fake")), maxRows, ctx);
             }
             Collection<BackgroundLocation> locations = dao.getAllLocations();
             Assert.assertEquals(maxRows, locations.size());
         }
 
-        Long locationId = dao.persistLocation(new BackgroundLocation(new Location("fake")));
+        Long locationId = dao.persistLocation(new BackgroundLocation(new Location("fake"), ctx));
         Assert.assertEquals(locationId, Long.valueOf(101));
     }
 
@@ -270,7 +270,7 @@ public class SQLiteLocationDAOTest {
             location.setSpeed(20 + i);
             location.setProvider("test");
             location.setTime(1000 + i);
-            bgLocation = new BackgroundLocation(location);
+            bgLocation = new BackgroundLocation(location, ctx);
             dao.persistLocation(bgLocation);
         }
 

@@ -1,6 +1,7 @@
 package com.marianhello.bgloc.data;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Build;
@@ -9,6 +10,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.TimeUtils;
 
+import com.marianhello.bgloc.Config;
+import com.marianhello.bgloc.service.LocationServiceImpl;
+import com.marianhello.bgloc.data.ConfigurationDAO;
+import com.marianhello.bgloc.data.DAOFactory;
 import com.marianhello.bgloc.data.sqlite.SQLiteLocationContract;
 import com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry;
 
@@ -20,6 +25,7 @@ public class BackgroundLocation implements Parcelable {
     public static final int POST_PENDING = 1;
     public static final int SYNC_PENDING = 2;
 
+    private String user;
     private Long locationId = null;
     private Integer locationProvider = null;
     private Long batchStartMillis = null;
@@ -55,13 +61,13 @@ public class BackgroundLocation implements Parcelable {
      * @param location
      */
     @Deprecated
-    public BackgroundLocation(Location location) {
-        this(BackgroundLocation.fromLocation(location));
+    public BackgroundLocation(Location location, Context context) {
+        this(BackgroundLocation.fromLocation(location, context));
     }
 
     @Deprecated
-    public BackgroundLocation(Integer locationProvider, Location location) {
-        this(location);
+    public BackgroundLocation(Integer locationProvider, Location location, Context context) {
+        this(location, context);
         this.locationProvider = locationProvider;
     }
 
@@ -72,8 +78,8 @@ public class BackgroundLocation implements Parcelable {
      * @param radius radius of stationary region
      */
     @Deprecated
-    public BackgroundLocation(Integer locationProvider, Location location, float radius) {
-        this(locationProvider, location);
+    public BackgroundLocation(Integer locationProvider, Location location, float radius, Context context) {
+        this(locationProvider, location, context);
         setRadius(radius);
     }
 
@@ -82,6 +88,7 @@ public class BackgroundLocation implements Parcelable {
      * @param location
      */
     public BackgroundLocation(BackgroundLocation l) {
+        user = l.user;
         locationId = l.locationId;
         locationProvider = l.locationProvider;
         batchStartMillis = l.batchStartMillis;
@@ -108,6 +115,7 @@ public class BackgroundLocation implements Parcelable {
     private static BackgroundLocation fromParcel(Parcel in) {
         BackgroundLocation l = new BackgroundLocation();
 
+        l.user = in.readString();
         l.locationId = in.readLong();
         l.locationProvider = in.readInt();
         l.batchStartMillis = in.readLong();
@@ -133,9 +141,22 @@ public class BackgroundLocation implements Parcelable {
         return l;
     }
 
-    public static BackgroundLocation fromLocation(Location location) {
+    public static BackgroundLocation fromLocation(Location location, Context context) {
         BackgroundLocation l = new BackgroundLocation();
 
+        ConfigurationDAO dao = DAOFactory.createConfigurationDAO(context);
+        Config config = null;
+        try {
+            config = dao.retrieveConfiguration();
+        } catch (JSONException e) {
+            //noop
+        }
+
+        if (config == null) {
+            config = Config.getDefault();
+        }
+
+        l.user = config.getUser();
         l.provider = location.getProvider();
         l.latitude = location.getLatitude();
         l.longitude = location.getLongitude();
@@ -168,6 +189,7 @@ public class BackgroundLocation implements Parcelable {
     public static BackgroundLocation fromCursor(Cursor c) {
         BackgroundLocation l = new BackgroundLocation();
 
+        l.setUser(c.getString(c.getColumnIndex(LocationEntry.COLUMN_NAME_USER)));
         l.setProvider(c.getString(c.getColumnIndex(LocationEntry.COLUMN_NAME_PROVIDER)));
         l.setTime(c.getLong(c.getColumnIndex(LocationEntry.COLUMN_NAME_TIME)));
         if (c.getInt(c.getColumnIndex(LocationEntry.COLUMN_NAME_HAS_ACCURACY)) == 1) {
@@ -203,6 +225,7 @@ public class BackgroundLocation implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(user);
         dest.writeLong(locationId);
         dest.writeInt(locationProvider);
         dest.writeLong(batchStartMillis);
@@ -238,6 +261,22 @@ public class BackgroundLocation implements Parcelable {
 
     public BackgroundLocation makeClone() {
         return new BackgroundLocation(this);
+    }
+
+    /**
+     * Returns user logged in while receiving the location.
+     * @return user
+     */
+    public String getUser() {
+        return user;
+    }
+
+    /**
+     * Sets user logged in while receiving the location.
+     * @param user
+     */
+    public void setUser(String user) {
+        this.user = user;
     }
 
     /**
@@ -774,11 +813,11 @@ public class BackgroundLocation implements Parcelable {
      * @param location to compare is android Location
      * @return true if location is better and false if not
      */
-    public boolean isBetterLocationThan(Location location) {
+    public boolean isBetterLocationThan(Location location, Context context) {
         if (location == null) {
             return true;
         }
-        return !isBetterLocation(new BackgroundLocation(location), this);
+        return !isBetterLocation(new BackgroundLocation(location, context), this);
     }
 
     /**
@@ -805,6 +844,7 @@ public class BackgroundLocation implements Parcelable {
     public String toString () {
         StringBuilder s = new StringBuilder();
         s.append("BGLocation[").append(provider);
+        s.append(" user=" + user);
         s.append(String.format(" %.6f,%.6f", latitude, longitude));
         s.append(" id=").append(locationId);
         if (hasAccuracy) {
@@ -844,6 +884,7 @@ public class BackgroundLocation implements Parcelable {
      */
     public JSONObject toJSONObject() throws JSONException {
         JSONObject json = new JSONObject();
+        json.put("user", user);
         json.put("provider", provider);
         json.put("locationProvider", locationProvider);
         json.put("time", time);
@@ -879,6 +920,7 @@ public class BackgroundLocation implements Parcelable {
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
         //values.put(LocationEntry._ID, locationId);
+        values.put(LocationEntry.COLUMN_NAME_USER, user);
         values.put(LocationEntry.COLUMN_NAME_TIME, time);
         values.put(LocationEntry.COLUMN_NAME_ACCURACY, accuracy);
         values.put(LocationEntry.COLUMN_NAME_SPEED, speed);
@@ -903,6 +945,9 @@ public class BackgroundLocation implements Parcelable {
     public Object getValueForKey(String key) {
         if ("@id".equals(key)) {
             return locationId;
+        }
+        if ("@user".equals(key)) {
+            return user;
         }
         if ("@provider".equals(key)) {
             return provider;

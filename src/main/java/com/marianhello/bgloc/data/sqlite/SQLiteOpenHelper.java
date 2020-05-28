@@ -12,11 +12,14 @@ import com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.Configurati
 import java.util.ArrayList;
 
 import static com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.ConfigurationEntry.SQL_CREATE_CONFIG_TABLE;
+import static com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.ConfigurationEntry.SQL_CREATE_CONFIG_TABLE_USER_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.ConfigurationEntry.SQL_DROP_CONFIG_TABLE;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE;
+import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_USER_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_BATCH_ID_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_TIME_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_DROP_LOCATION_TABLE;
+
 
 public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     private static final String TAG = SQLiteOpenHelper.class.getName();
@@ -63,9 +66,12 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "Creating db: " + this.getDatabaseName());
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE);
-        execAndLogSql(db, SQL_CREATE_CONFIG_TABLE);
+        execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_USER_IDX);
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_TIME_IDX);
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_BATCH_ID_IDX);
+
+        execAndLogSql(db, SQL_CREATE_CONFIG_TABLE);
+        execAndLogSql(db, SQL_CREATE_CONFIG_TABLE_USER_IDX);
     }
 
     @Override

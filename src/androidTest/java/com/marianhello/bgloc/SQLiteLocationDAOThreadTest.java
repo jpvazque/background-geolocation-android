@@ -60,7 +60,7 @@ public class SQLiteLocationDAOThreadTest {
                     location.setSpeed(20 + i);
                     location.setProvider("test");
                     location.setTime(1000 + i);
-                    BackgroundLocation bgLocation = new BackgroundLocation(location);
+                    BackgroundLocation bgLocation = new BackgroundLocation(location, ctx);
 
                     dao.persistLocation(bgLocation);
                 }
