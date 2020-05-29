@@ -22,6 +22,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.BatteryManager;
 
 import com.marianhello.bgloc.Config;
 import com.marianhello.bgloc.provider.AbstractLocationProvider;
@@ -32,6 +33,8 @@ import java.util.List;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.round;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 
 public class DistanceFilterLocationProvider extends AbstractLocationProvider implements LocationListener {
@@ -64,6 +67,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     private PendingIntent stationaryRegionPI;
     private PendingIntent singleUpdatePI;
     private Integer scaledDistanceFilter;
+    private BatteryManager mBatteryManager;
 
     private Criteria criteria;
 
@@ -83,6 +87,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
 
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        mBatteryManager = (BatteryManager) mContext.getSystemService(Context.BATTERY_SERVICE);
 
         // Stop-detection PI
         stationaryAlarmPI = PendingIntent.getBroadcast(mContext, 0, new Intent(STATIONARY_ALARM_ACTION), 0);
@@ -180,7 +185,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             locationManager.removeUpdates(this);
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
             criteria.setHorizontalAccuracy(translateDesiredAccuracy(mConfig.getDesiredAccuracy()));
-            criteria.setPowerRequirement(Criteria.POWER_HIGH);
+            criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
 
             if (isMoving) {
                 // setPace can be called while moving, after distanceFilter has been recalculated.  We don't want to re-acquire velocity in this case.
@@ -198,7 +203,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                 List<String> matchingProviders = locationManager.getAllProviders();
                 for (String provider: matchingProviders) {
                     if (provider != LocationManager.PASSIVE_PROVIDER) {
-                        locationManager.requestLocationUpdates(provider, 0, 0, this);
+                        locationManager.requestLocationUpdates(provider, mConfig.getInterval(), scaledDistanceFilter, this);
                     }
                 }
             } else {
@@ -208,6 +213,49 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             logger.error("Security exception: {}", e.getMessage());
             this.handleSecurityException(e);
         }
+    }
+
+    private int getFrecuency(){
+        return 0;
+    }
+
+    private int getTimeInterval(){
+        //default 5 min (max)
+        if(mBatteryManager.isCharging()){
+            //logic to augment frecuency
+        }else{
+            //logic isHome()
+            if(isNight()){
+                setLowerAccuracy(mConfig.getDesiredAccuracy());
+                //aumentar tnext
+            }else{
+                //aumentar tnext
+            }
+        }
+        return mConfig.getInterval();
+    }
+
+    private boolean isNight(){
+        Calendar today = Calendar.getInstance(TimeZone.getTimeZone("America/Guayaquil"));
+        int hour = (int) today.get(Calendar.HOUR_OF_DAY);
+        if(hour > 20){
+            return true;
+        }
+        return false;
+    }
+
+    private void setLowerAccuracy(Integer accuracy){
+        if(accuracy >= 100) {
+            criteria.setHorizontalAccuracy(Criteria.ACCURACY_LOW);
+        }
+        else if(accuracy >= 10) {
+            criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
+        }
+        else if(accuracy >= 0) {
+            criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
+        }
+
+        criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
     }
 
     /**
@@ -481,7 +529,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
 
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
             criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
-            criteria.setPowerRequirement(Criteria.POWER_HIGH);
+            criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
 
             try {
                 locationManager.requestSingleUpdate(criteria, singleUpdatePI);
