@@ -34,6 +34,9 @@ public class SQLiteConfigurationDAO implements ConfigurationDAO {
     String[] columns = {
       ConfigurationEntry._ID,
       ConfigurationEntry.COLUMN_NAME_USER,
+      ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE,
+      ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE,
+      ConfigurationEntry.COLUMN_NAME_HOME_RADIUS,
       ConfigurationEntry.COLUMN_NAME_RADIUS,
       ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER,
       ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY,
@@ -101,6 +104,9 @@ public class SQLiteConfigurationDAO implements ConfigurationDAO {
   private Config hydrate(Cursor c) throws JSONException {
     Config config = Config.getDefault();
     config.setUser(c.getString(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_USER)));
+    config.setHomeLatitude(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE)));
+    config.setHomeLongitude(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE)));
+    config.setHomeRadius(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_RADIUS)));
     config.setStationaryRadius(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_RADIUS)));
     config.setDistanceFilter(c.getInt(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER)));
     config.setDesiredAccuracy(c.getInt(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY)));
@@ -133,6 +139,9 @@ public class SQLiteConfigurationDAO implements ConfigurationDAO {
     ContentValues values = new ContentValues();
     values.put(ConfigurationEntry._ID, 1);
     values.put(ConfigurationEntry.COLUMN_NAME_USER, config.getUser());
+    values.put(ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE, config.getHomeLatitude());
+    values.put(ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE, config.getHomeLongitude());
+    values.put(ConfigurationEntry.COLUMN_NAME_HOME_RADIUS, config.getHomeRadius());
     values.put(ConfigurationEntry.COLUMN_NAME_RADIUS, config.getStationaryRadius());
     values.put(ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER, config.getDistanceFilter());
     values.put(ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY, config.getDesiredAccuracy());

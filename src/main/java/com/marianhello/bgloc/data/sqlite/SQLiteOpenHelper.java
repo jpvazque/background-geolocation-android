@@ -24,7 +24,7 @@ import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationE
 public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     private static final String TAG = SQLiteOpenHelper.class.getName();
     public static final String SQLITE_DATABASE_NAME = "cordova_bg_geolocation.db";
-    public static final int DATABASE_VERSION = 15;
+    public static final int DATABASE_VERSION = 16;
 
     public static final String TEXT_TYPE = " TEXT";
     public static final String INTEGER_TYPE = " INTEGER";
@@ -118,6 +118,19 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
             case 14:
                 alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
                         " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_NOTIFICATIONS_ENABLED + INTEGER_TYPE);
+            case 15:
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                    " ADD COLUMN " + LocationEntry.COLUMN_NAME_USER + TEXT_TYPE);
+                alterSql.add(SQL_CREATE_LOCATION_TABLE_USER_IDX);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.COLUMN_NAME_USER +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_USER + TEXT_TYPE);
+                alterSql.add(SQL_CREATE_CONFIG_TABLE_USER_IDX);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE + REAL_TYPE);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE + REAL_TYPE);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_RADIUS + REAL_TYPE);
 
                 break; // DO NOT FORGET TO MOVE DOWN BREAK ON DB UPGRADE!!!
             default:

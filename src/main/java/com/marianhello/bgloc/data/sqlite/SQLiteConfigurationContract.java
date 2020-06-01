@@ -17,6 +17,9 @@ public final class SQLiteConfigurationContract {
         public static final String TABLE_NAME = "configuration";
         public static final String COLUMN_NAME_NULLABLE = "NULLHACK";
         public static final String COLUMN_NAME_USER = "user";
+        public static final String COLUMN_NAME_HOME_LATITUDE = "home_latitude";
+        public static final String COLUMN_NAME_HOME_LONGITUDE = "home_longitude";
+        public static final String COLUMN_NAME_HOME_RADIUS = "home_radius";
         public static final String COLUMN_NAME_RADIUS = "stationary_radius";
         public static final String COLUMN_NAME_DISTANCE_FILTER = "distance_filter";
         public static final String COLUMN_NAME_DESIRED_ACCURACY = "desired_accuracy";
@@ -46,6 +49,9 @@ public final class SQLiteConfigurationContract {
                 "CREATE TABLE " + ConfigurationEntry.TABLE_NAME + " (" +
                         ConfigurationEntry._ID + " INTEGER PRIMARY KEY," +
                         ConfigurationEntry.COLUMN_NAME_USER + TEXT_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE + REAL_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE + REAL_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_RADIUS + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_RADIUS + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER + INTEGER_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY + INTEGER_TYPE + COMMA_SEP +
