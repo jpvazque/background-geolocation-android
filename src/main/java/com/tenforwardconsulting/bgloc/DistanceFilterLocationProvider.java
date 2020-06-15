@@ -23,6 +23,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.BatteryManager;
+import android.net.ConnectivityManager;
+import android.content.BroadcastReceiver;
 
 import com.marianhello.bgloc.Config;
 import com.marianhello.bgloc.provider.AbstractLocationProvider;
@@ -35,6 +37,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.round;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.ArrayList;
 
 
 public class DistanceFilterLocationProvider extends AbstractLocationProvider implements LocationListener {
@@ -68,6 +71,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     private PendingIntent singleUpdatePI;
     private Integer scaledDistanceFilter;
     private BatteryManager mBatteryManager;
+    private ConnectivityManager connMgr;
 
     private Criteria criteria;
 
@@ -75,10 +79,22 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     private AlarmManager alarmManager;
 
     private boolean isStarted = false;
+    private Network[] availableNetworks;
+    private Network connectedNetwork;
+    private final Integer minFrecuency; //milliseconds
+    private final Integer maxFrecuency; //milliseconds
+    private Integer frecuency;
 
     public DistanceFilterLocationProvider(Context context) {
         super(context);
         PROVIDER_ID = Config.DISTANCE_FILTER_PROVIDER;
+        availableNetworks = new ArrayList<String>();
+        connectedNetwork  = "";
+        maxFrecuency = 300000;
+        minFrecuency = 900000;
+        frecuency = 900000;
+        availableNetworks = connMgr.getAllNetworks();
+        connectedNetwork = connMgr.getActiveNetwork();
     }
 
     @Override
@@ -88,6 +104,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         mBatteryManager = (BatteryManager) mContext.getSystemService(Context.BATTERY_SERVICE);
+        connMgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // Stop-detection PI
         stationaryAlarmPI = PendingIntent.getBroadcast(mContext, 0, new Intent(STATIONARY_ALARM_ACTION), 0);
@@ -122,7 +139,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         logger.info("Start recording");
         scaledDistanceFilter = mConfig.getDistanceFilter();
         isStarted = true;
-        setPace(false);
+        setPace(false,mConfig.getInterval());
     }
 
     @Override
@@ -145,7 +162,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     public void onCommand(int commandId, int arg1) {
         switch(commandId) {
             case CMD_SWITCH_MODE:
-                setPace(arg1 == BACKGROUND_MODE ? false : true);
+                setPace(arg1 == BACKGROUND_MODE ? false : true,mConfig.getInterval());
                 return;
         }
     }
@@ -168,7 +185,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
      *
      * @param value set true to engage "aggressive", battery-consuming tracking, false for stationary-region tracking
      */
-    private void setPace(Boolean value) {
+    private void setPace(Boolean value, Integer interval) {
         if (!isStarted) {
             return;
         }
@@ -203,11 +220,11 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                 List<String> matchingProviders = locationManager.getAllProviders();
                 for (String provider: matchingProviders) {
                     if (provider != LocationManager.PASSIVE_PROVIDER) {
-                        locationManager.requestLocationUpdates(provider, mConfig.getInterval(), scaledDistanceFilter, this);
+                        locationManager.requestLocationUpdates(provider,interval, scaledDistanceFilter, this);
                     }
                 }
             } else {
-                locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), mConfig.getInterval(), scaledDistanceFilter, this);
+                locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), interval, scaledDistanceFilter, this);
             }
         } catch (SecurityException e) {
             logger.error("Security exception: {}", e.getMessage());
@@ -215,27 +232,94 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         }
     }
 
-    private int getFrecuency(){
-        return 0;
-    }
-
-    private int getTimeInterval(){
-        //default 5 min (max)
+    private Integer getTimeInterval(Location location){
+        Integer newFrecuency;
         if(mBatteryManager.isCharging()){
-            //logic to augment frecuency
+            //check timer expired
+            newFrecuency = getPredictedFrecuency(false,location);
+            return newFrecuency;
         }else{
-            //logic isHome()
-            if(isNight()){
-                setLowerAccuracy(mConfig.getDesiredAccuracy());
-                //aumentar tnext
+            if(isInHome(mConfig.getHomeRadius(), location)) {
+                if(isNight()){
+                    setLowerAccuracy();
+                    //check timer expired
+                    newFrecuency = getPredictedFrecuency(false,location);
+                    return newFrecuency;
+                }else{
+                    //check timer expired
+                    newFrecuency = getPredictedFrecuency(false,location);
+                    return newFrecuency;
+                }
             }else{
-                //aumentar tnext
+                if(hasChangedConnectedNetwork()) {
+                    setHigherAccuracy();
+                    //check timer expired
+                    newFrecuency = getPredictedFrecuency(true,location);
+                    return newFrecuency;
+                }else{
+                    if(haveChangedAvailableNetworks()) {
+                        //check timer expired
+                        newFrecuency = getPredictedFrecuency(true,location);
+                    return newFrecuency;
+                    }else{
+                        setLowerAccuracy();
+                        //check timer expired
+                        newFrecuency = getPredictedFrecuency(false,location);
+                        return newFrecuency;
+                    }
+                }
             }
+            
         }
-        return mConfig.getInterval();
+        if(newFrecuency != null){
+            setFrecuency(newFrecuency);
+        }else{
+            setFrecuency(conf.getDistanceFilter());
+        }
+        setAvailableNetworks(connMgr.getAllNetworks());
+        setConnectedNetwork(connMgr.getActiveNetwork());
     }
 
-    private boolean isNight(){
+    private Integer getPredictedFrecuency(Boolean action,Location location){ //true aumentar frecuancia -1 min false disminuir frecuancia +1 min
+        float exp = -1 * (location.getSpeed() - 1.67);
+        Float newFrecuency = (this.minFrecuency/(1+Math.pow(2.72, exp))) + this.maxFrecuency;
+        newFrecuency = Integer( (int) newFrecuency);
+        if(action){
+            if((newFrecuency -1) < maxFrecuency){
+                return 5;
+            }
+            return new Integer( (int) newFrecuency - 1);
+        }
+        if((newFrecuency +1) > minFrecuency) {
+            return 15;
+        }
+        return new Integer( (int) newFrecuency + 1);
+    }
+
+    private Integer getFrecuency() {
+        return this.frecuency;
+    }
+
+    private void setFrecuency(Integer Frecuency) {
+        this.frecuency = frecuency;
+    }
+
+    private Boolean isInHome(Float homeRadius, Location location) {
+        Float actualRadius = calculateDistanceBetweenPoints(location.getLatitude(),
+                                                            location.getLongitude(),
+                                                            mConfig.getHomeLat(),
+                                                            mConfig.getHomeLong());
+        if(actualRadius <= homeRadius){
+            return true;
+        }
+        return false;
+    }
+
+    private Float calculateDistanceBetweenPoints(Float x1, Float y1, Float x2, Float y2) {       
+        return new Float( (float) Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1)));
+    }
+
+    private Boolean isNight() {
         Calendar today = Calendar.getInstance(TimeZone.getTimeZone("America/Guayaquil"));
         int hour = (int) today.get(Calendar.HOUR_OF_DAY);
         if(hour > 20){
@@ -244,18 +328,62 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         return false;
     }
 
-    private void setLowerAccuracy(Integer accuracy){
+    private Boolean hasChangedConnectedNetwork() {
+        Network actualNetwork = connMgr.getActiveNetwork();
+        if(connectedNetwork.equals(actualNetwork)) {
+            return false;
+        }
+        return true;
+    }
+
+    private Boolean haveChangedAvailableNetworks() {
+        Network[] actualNetworks = connMgr.getAllNetworks();
+        for(int i=0; i<availableNetworks.length; i++) {
+            if(!availableNetworks[i].equals(actualNetworks[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Network[] getAvailableNetworks() {
+        return availableNetworks;
+    }
+
+    private void setAvailableNetworks(Network[] availableNetworks) {
+        this.availableNetworks = availableNetworks;
+    }
+
+    private Network getConnectedNetwork() {
+        return connectedNetwork;
+    }
+
+    private void setConnectedNetwork(Network connectedNetwork) {
+        this.connectedNetwork = connectedNetwork;
+    }
+
+    private void setLowerAccuracy() {
+        Integer accuracy = mConfig.getDesiredAccuracy();
         if(accuracy >= 100) {
             criteria.setHorizontalAccuracy(Criteria.ACCURACY_LOW);
-        }
-        else if(accuracy >= 10) {
-            criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
         }
         else if(accuracy >= 0) {
             criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
         }
 
         criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
+    }
+
+    private Integer setHigherAccuracy() {
+        Integer accuracy = mConfig.getDesiredAccuracy();
+        if (accuracy >= 1000) {
+            return Criteria.ACCURACY_MEDIUM;
+        }
+        else if (accuracy >= 0) {
+            return Criteria.ACCURACY_HIGH;
+        }
+
+        return Criteria.ACCURACY_MEDIUM;
     }
 
     /**
@@ -331,9 +459,11 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     public void onLocationChanged(Location location) {
         logger.debug("Location change: {} isMoving={}", location.toString(), isMoving);
 
+        Integer interval = getTimeInterval(location);
+
         if (!isMoving && !isAcquiringStationaryLocation && stationaryLocation==null) {
             // Perhaps our GPS signal was interupted, re-acquire a stationaryLocation now.
-            setPace(false);
+            setPace(false, interval);
         }
 
         showDebugToast( "mv:" + isMoving + ",acy:" + location.getAccuracy() + ",v:" + location.getSpeed() + ",df:" + scaledDistanceFilter);
@@ -358,7 +488,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                 playDebugTone(Tone.DOODLY_DOO);
                 isAcquiringSpeed = false;
                 scaledDistanceFilter = calculateDistanceFilter(location.getSpeed());
-                setPace(true);
+                setPace(true, interval);
             } else {
                 playDebugTone(Tone.BEEP);
                 return;
@@ -375,7 +505,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             if (newDistanceFilter != scaledDistanceFilter.intValue()) {
                 logger.info("Updating distanceFilter: new={} old={}", newDistanceFilter, scaledDistanceFilter);
                 scaledDistanceFilter = newDistanceFilter;
-                setPace(true);
+                setPace(true, interval);
             }
             if (lastLocation != null && location.distanceTo(lastLocation) < mConfig.getDistanceFilter()) {
                 return;
@@ -446,7 +576,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             // Kill the current region-monitor we just walked out of.
             locationManager.removeProximityAlert(stationaryRegionPI);
             // Engage aggressive tracking.
-            this.setPace(true);
+            this.setPace(true, interval);
         } catch (SecurityException e) {
             logger.error("Security exception: {}", e.getMessage());
             this.handleSecurityException(e);
@@ -511,7 +641,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         public void onReceive(Context context, Intent intent)
         {
             logger.info("stationaryAlarm fired");
-            setPace(false);
+            setPace(false,mConfig.getInterval());
         }
     };
 
@@ -551,7 +681,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             if (entering) {
                 logger.debug("Entering stationary region");
                 if (isMoving) {
-                    setPace(false);
+                    setPace(false,mConfig.getInterval());
                 }
             }
             else {

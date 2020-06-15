@@ -63,6 +63,9 @@ public class Config implements Parcelable
     private HashMap httpHeaders;
     private Integer maxLocations;
     private LocationTemplate template;
+    private Float homeLat;
+    private Float homeLong;
+    private Float homeRadius;
 
     public Config () {
     }
@@ -95,6 +98,9 @@ public class Config implements Parcelable
         if (config.template instanceof AbstractLocationTemplate) {
             this.template = ((AbstractLocationTemplate)config.template).clone();
         }
+        this.homeLat = config.homeLat;
+        this.homeLong = config.homeLong;
+        this.homeRadius = config.homeRadius;
     }
 
     private Config(Parcel in) {
@@ -123,6 +129,9 @@ public class Config implements Parcelable
         Bundle bundle = in.readBundle();
         setHttpHeaders((HashMap<String, String>) bundle.getSerializable("httpHeaders"));
         setTemplate((LocationTemplate) bundle.getSerializable(AbstractLocationTemplate.BUNDLE_KEY));
+        setHomeLat(in.readFloat());
+        setHomeLong(in.readFloat());
+        setHomeRadius(in.readFloat());
     }
 
     public static Config getDefault() {
@@ -151,6 +160,9 @@ public class Config implements Parcelable
         config.httpHeaders = null;
         config.maxLocations = 10000;
         config.template = null;
+        config.homeLat = 0;
+        config.homeLong = 0;
+        config.homeRadius = 0;
 
         return config;
     }
@@ -187,6 +199,9 @@ public class Config implements Parcelable
         bundle.putSerializable("httpHeaders", getHttpHeaders());
         bundle.putSerializable(AbstractLocationTemplate.BUNDLE_KEY, (AbstractLocationTemplate) getTemplate());
         out.writeBundle(bundle);
+        out.writeFloat(getHomeLat());
+        out.writeFloat(getHomeLong());
+        out.writeFloat(getHomeRadius());
     }
 
     public static final Parcelable.Creator<Config> CREATOR
@@ -518,6 +533,30 @@ public class Config implements Parcelable
 
     public void setTemplate(LocationTemplate template) {
         this.template = template;
+    }
+
+    public Float getHomeLat() {
+        return homeLat;
+    }
+
+    public void setHomeLat(Float homeLat) {
+        this.homeLat = homeLat;
+    }
+
+    public Float getHomeLong() {
+        return homeLong;
+    }
+
+    public void setHomeLong(Float homeLong) {
+        this.homeLong = homeLong;
+    }
+
+    public Float getHomeRadius() {
+        return homeRadius;
+    }
+
+    public void setHomeRadius(Float homeRadius) {
+        this.homeRadius = homeRadius;
     }
 
     @Override
