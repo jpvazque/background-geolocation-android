@@ -17,6 +17,7 @@ public final class SQLiteLocationContract {
     public static abstract class LocationEntry implements BaseColumns {
         public static final String TABLE_NAME = "location";
         public static final String COLUMN_NAME_NULLABLE = "NULLHACK";
+        public static final String COLUMN_NAME_USER = "user";
         public static final String COLUMN_NAME_TIME = "time";
         public static final String COLUMN_NAME_ACCURACY = "accuracy";
         public static final String COLUMN_NAME_SPEED = "speed";
@@ -39,6 +40,7 @@ public final class SQLiteLocationContract {
         public static final String SQL_CREATE_LOCATION_TABLE =
                 "CREATE TABLE " + LocationEntry.TABLE_NAME + " (" +
                         LocationEntry._ID + " INTEGER PRIMARY KEY," +
+                        LocationEntry.COLUMN_NAME_USER + TEXT_TYPE + COMMA_SEP +
                         LocationEntry.COLUMN_NAME_TIME + INTEGER_TYPE + COMMA_SEP +
                         LocationEntry.COLUMN_NAME_ACCURACY + REAL_TYPE + COMMA_SEP +
                         LocationEntry.COLUMN_NAME_SPEED + REAL_TYPE + COMMA_SEP +
@@ -62,6 +64,9 @@ public final class SQLiteLocationContract {
         public static final String SQL_DROP_LOCATION_TABLE =
                 "DROP TABLE IF EXISTS " + LocationEntry.TABLE_NAME;
 
+        public static final String SQL_CREATE_LOCATION_TABLE_USER_IDX =
+                "CREATE INDEX user_idx ON " + LocationEntry.TABLE_NAME + " (" + LocationEntry.COLUMN_NAME_USER + ")";
+
         public static final String SQL_CREATE_LOCATION_TABLE_TIME_IDX =
                 "CREATE INDEX time_idx ON " + LocationEntry.TABLE_NAME + " (" + LocationEntry.COLUMN_NAME_TIME + ")";
 
@@ -83,6 +88,7 @@ public final class SQLiteLocationContract {
          */
         public static final String[] PROJECTION_ALL = {
                 _ID,
+                COLUMN_NAME_USER,
                 COLUMN_NAME_TIME,
                 COLUMN_NAME_ACCURACY,
                 COLUMN_NAME_SPEED,

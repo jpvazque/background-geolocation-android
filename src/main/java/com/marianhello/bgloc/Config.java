@@ -39,6 +39,10 @@ public class Config implements Parcelable
     // NULL string config option to distinguish between java null
     public static final String NullString = new String();
 
+    private String user;
+    private Float homeLatitude;
+    private Float homeLongitude;
+    private Float homeRadius;
     private Float stationaryRadius;
     private Integer distanceFilter;
     private Integer desiredAccuracy;
@@ -72,6 +76,10 @@ public class Config implements Parcelable
 
     // Copy constructor
     public Config(Config config) {
+        this.user = config.user;
+        this.homeLatitude = config.homeLatitude;
+        this.homeLongitude = config.homeLongitude;
+        this.homeRadius = config.homeRadius;
         this.stationaryRadius = config.stationaryRadius;
         this.distanceFilter = config.distanceFilter;
         this.desiredAccuracy = config.desiredAccuracy;
@@ -104,6 +112,10 @@ public class Config implements Parcelable
     }
 
     private Config(Parcel in) {
+        setUser(in.readString());
+        setHomeLatitude(in.readFloat());
+        setHomeLongitude(in.readFloat());
+        setHomeRadius(in.readFloat());
         setStationaryRadius(in.readFloat());
         setDistanceFilter(in.readInt());
         setDesiredAccuracy(in.readInt());
@@ -136,6 +148,10 @@ public class Config implements Parcelable
 
     public static Config getDefault() {
         Config config = new Config();
+        config.user = "";
+        config.homeLatitude = 0f;
+        config.homeLongitude = 0f;
+        config.homeRadius = 20f;
         config.stationaryRadius = 50f;
         config.distanceFilter = 500;
         config.desiredAccuracy = 100;
@@ -173,6 +189,10 @@ public class Config implements Parcelable
 
     // write your object's data to the passed-in Parcel
     public void writeToParcel(Parcel out, int flags) {
+        out.writeString(getUser());
+        out.writeFloat(getHomeLatitude());
+        out.writeFloat(getHomeLongitude());
+        out.writeFloat(getHomeRadius());
         out.writeFloat(getStationaryRadius());
         out.writeInt(getDistanceFilter());
         out.writeInt(getDesiredAccuracy());
@@ -214,6 +234,40 @@ public class Config implements Parcelable
             return new Config[size];
         }
     };
+
+    public boolean hasUser() { return user != null; }
+
+    public String getUser() { return user; }
+
+    public void setUser(String user) { this.user = user; }
+    
+
+    public boolean hasHomeLatitude() { return homeLatitude != null; }
+
+    public Float getHomeLatitude() { return homeLatitude; }
+
+    public void setHomeLatitude(float homeLatitude) { this.homeLatitude = homeLatitude; }
+
+    public void setHomeLatitude(double homeLatitude) { this.homeLatitude = (float) homeLatitude; }
+
+
+    public boolean hasHomeLongitude() { return homeLongitude != null; }
+
+    public Float getHomeLongitude() { return homeLongitude; }
+
+    public void setHomeLongitude(float homeLongitude) { this.homeLongitude = homeLongitude; }
+
+    public void setHomeLongitude(double homeLongitude) { this.homeLongitude = (float) homeLongitude; }
+
+
+    public boolean hasHomeRadius() { return homeRadius != null; }
+
+    public Float getHomeRadius() { return homeRadius; }
+
+    public void setHomeRadius(float homeRadius) { this.homeRadius = homeRadius; }
+
+    public void setHomeRadius(double homeRadius) { this.homeRadius = (float) homeRadius; }
+
 
     public boolean hasStationaryRadius() {
         return stationaryRadius != null;
@@ -563,6 +617,10 @@ public class Config implements Parcelable
     public String toString () {
         return new StringBuffer()
                 .append("Config[distanceFilter=").append(getDistanceFilter())
+                .append(" user=").append(getUser())
+                .append(" homeLatitude=").append(getHomeLatitude())
+                .append(" homeLongitude=").append(getHomeLongitude())
+                .append(" homeRadius=").append(getHomeRadius())
                 .append(" stationaryRadius=").append(getStationaryRadius())
                 .append(" desiredAccuracy=").append(getDesiredAccuracy())
                 .append(" interval=").append(getInterval())
@@ -606,6 +664,18 @@ public class Config implements Parcelable
     public static Config merge(Config config1, Config config2) {
         Config merger = new Config(config1);
 
+        if (config2.hasUser()) {
+            merger.setUser(config2.getUser());
+        }
+        if (config2.hasHomeLatitude()) {
+            merger.setHomeLatitude(config2.getHomeLatitude());
+        }
+        if (config2.hasHomeLongitude()) {
+            merger.setHomeLongitude(config2.getHomeLongitude());
+        }
+        if (config2.hasHomeRadius()) {
+            merger.setHomeRadius(config2.getHomeRadius());
+        }
         if (config2.hasStationaryRadius()) {
             merger.setStationaryRadius(config2.getStationaryRadius());
         }

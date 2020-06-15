@@ -12,16 +12,19 @@ import com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.Configurati
 import java.util.ArrayList;
 
 import static com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.ConfigurationEntry.SQL_CREATE_CONFIG_TABLE;
+import static com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.ConfigurationEntry.SQL_CREATE_CONFIG_TABLE_USER_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteConfigurationContract.ConfigurationEntry.SQL_DROP_CONFIG_TABLE;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE;
+import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_USER_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_BATCH_ID_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_TIME_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_DROP_LOCATION_TABLE;
 
+
 public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     private static final String TAG = SQLiteOpenHelper.class.getName();
     public static final String SQLITE_DATABASE_NAME = "cordova_bg_geolocation.db";
-    public static final int DATABASE_VERSION = 15;
+    public static final int DATABASE_VERSION = 16;
 
     public static final String TEXT_TYPE = " TEXT";
     public static final String INTEGER_TYPE = " INTEGER";
@@ -63,9 +66,12 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "Creating db: " + this.getDatabaseName());
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE);
-        execAndLogSql(db, SQL_CREATE_CONFIG_TABLE);
+        execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_USER_IDX);
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_TIME_IDX);
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_BATCH_ID_IDX);
+
+        execAndLogSql(db, SQL_CREATE_CONFIG_TABLE);
+        execAndLogSql(db, SQL_CREATE_CONFIG_TABLE_USER_IDX);
     }
 
     @Override
@@ -112,6 +118,19 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
             case 14:
                 alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
                         " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_NOTIFICATIONS_ENABLED + INTEGER_TYPE);
+            case 15:
+                alterSql.add("ALTER TABLE " + LocationEntry.TABLE_NAME +
+                    " ADD COLUMN " + LocationEntry.COLUMN_NAME_USER + TEXT_TYPE);
+                alterSql.add(SQL_CREATE_LOCATION_TABLE_USER_IDX);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.COLUMN_NAME_USER +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_USER + TEXT_TYPE);
+                alterSql.add(SQL_CREATE_CONFIG_TABLE_USER_IDX);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE + REAL_TYPE);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE + REAL_TYPE);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_RADIUS + REAL_TYPE);
 
                 break; // DO NOT FORGET TO MOVE DOWN BREAK ON DB UPGRADE!!!
             default:

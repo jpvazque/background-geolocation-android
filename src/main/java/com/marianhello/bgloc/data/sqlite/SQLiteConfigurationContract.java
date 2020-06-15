@@ -16,6 +16,10 @@ public final class SQLiteConfigurationContract {
     public static abstract class ConfigurationEntry implements BaseColumns {
         public static final String TABLE_NAME = "configuration";
         public static final String COLUMN_NAME_NULLABLE = "NULLHACK";
+        public static final String COLUMN_NAME_USER = "user";
+        public static final String COLUMN_NAME_HOME_LATITUDE = "home_latitude";
+        public static final String COLUMN_NAME_HOME_LONGITUDE = "home_longitude";
+        public static final String COLUMN_NAME_HOME_RADIUS = "home_radius";
         public static final String COLUMN_NAME_RADIUS = "stationary_radius";
         public static final String COLUMN_NAME_DISTANCE_FILTER = "distance_filter";
         public static final String COLUMN_NAME_DESIRED_ACCURACY = "desired_accuracy";
@@ -44,6 +48,10 @@ public final class SQLiteConfigurationContract {
         public static final String SQL_CREATE_CONFIG_TABLE =
                 "CREATE TABLE " + ConfigurationEntry.TABLE_NAME + " (" +
                         ConfigurationEntry._ID + " INTEGER PRIMARY KEY," +
+                        ConfigurationEntry.COLUMN_NAME_USER + TEXT_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE + REAL_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE + REAL_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_RADIUS + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_RADIUS + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER + INTEGER_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY + INTEGER_TYPE + COMMA_SEP +
@@ -72,5 +80,8 @@ public final class SQLiteConfigurationContract {
 
         public static final String SQL_DROP_CONFIG_TABLE =
                 "DROP TABLE IF EXISTS " + ConfigurationEntry.TABLE_NAME;
+
+        public static final String SQL_CREATE_CONFIG_TABLE_USER_IDX =
+                "CREATE INDEX user_idx ON " + ConfigurationEntry.TABLE_NAME + " (" + ConfigurationEntry.COLUMN_NAME_USER + ")";
     }
 }

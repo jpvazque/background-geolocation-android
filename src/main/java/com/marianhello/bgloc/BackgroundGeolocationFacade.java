@@ -306,7 +306,7 @@ public class BackgroundGeolocationFacade {
             promise.await();
             Location location = promise.get();
             if (location != null) {
-                return BackgroundLocation.fromLocation(location);
+                return BackgroundLocation.fromLocation(location, getContext());
             }
 
             Throwable error = promise.getError();

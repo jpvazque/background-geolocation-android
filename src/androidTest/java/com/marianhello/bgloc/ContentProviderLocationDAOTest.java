@@ -48,7 +48,7 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
         location.setSpeed(20);
         location.setProvider("test");
         location.setTime(1000);
-        BackgroundLocation bgLocation = BackgroundLocation.fromLocation(location);
+        BackgroundLocation bgLocation = BackgroundLocation.fromLocation(location, getContext());
 
         dao.persistLocation(bgLocation);
 
@@ -94,7 +94,7 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
     public void testDeleteLocationById() {
         LocationDAO dao = new ContentProviderLocationDAO(getContext());
 
-        BackgroundLocation bgLocation = BackgroundLocation.fromLocation(new Location("fake"));
+        BackgroundLocation bgLocation = BackgroundLocation.fromLocation(new Location("fake"), getContext());
         Collection<BackgroundLocation> locations = null;
 
         Long locationId = dao.persistLocation(bgLocation);
@@ -114,7 +114,7 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
         Collection<BackgroundLocation> locations = null;
 
         for (int i = 0; i < 10; i++) {
-            dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake")));
+            dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake"), getContext()));
         }
 
         locations = dao.getValidLocations();
@@ -143,7 +143,7 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
             location.setSpeed(20 + i);
             location.setProvider("test");
             location.setTime(1000 + i);
-            bgLocation = BackgroundLocation.fromLocation(location);
+            bgLocation = BackgroundLocation.fromLocation(location, getContext());
             dao.persistLocation(bgLocation);
         }
 
@@ -170,7 +170,7 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
         int maxRows = 100;
 
         for (int i = 0; i < maxRows * 2; i++) {
-            dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake")), maxRows);
+            dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake"), getContext()), maxRows);
         }
 
         Collection<BackgroundLocation> locations = dao.getAllLocations();
@@ -181,8 +181,8 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
     public void testShouldReplaceOldLocation() {
         LocationDAO dao = new ContentProviderLocationDAO(getContext());
 
-        dao.persistLocation(BackgroundLocation.fromLocation(new Location("old")), 1);
-        dao.persistLocation(BackgroundLocation.fromLocation(new Location("new")), 1);
+        dao.persistLocation(BackgroundLocation.fromLocation(new Location("old"), getContext()), 1);
+        dao.persistLocation(BackgroundLocation.fromLocation(new Location("new"), getContext()), 1);
 
         Collection<BackgroundLocation> locations = dao.getAllLocations();
         assertEquals(1, locations.size());
@@ -198,13 +198,13 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
         for (int i = 0; i < maxRowsRun.length; i++) {
             int maxRows = maxRowsRun[i];
             for (int j = 0; j < maxRows * 2; j++) {
-                dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake")), maxRows);
+                dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake"), getContext()), maxRows);
             }
             Collection<BackgroundLocation> locations = dao.getAllLocations();
             assertEquals(maxRows, locations.size());
         }
 
-        Long locationId = dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake")));
+        Long locationId = dao.persistLocation(BackgroundLocation.fromLocation(new Location("fake"), getContext()));
         assertEquals(locationId, Long.valueOf(101));
     }
 
@@ -262,7 +262,7 @@ public class ContentProviderLocationDAOTest extends LocationProviderTestCase {
             location.setSpeed(20 + i);
             location.setProvider("test");
             location.setTime(1000 + i);
-            bgLocation = BackgroundLocation.fromLocation(location);
+            bgLocation = BackgroundLocation.fromLocation(location, getContext());
             dao.persistLocation(bgLocation);
         }
 

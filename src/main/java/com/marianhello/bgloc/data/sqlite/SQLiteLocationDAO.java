@@ -272,6 +272,7 @@ public class SQLiteLocationDAO implements LocationDAO {
 
     sql = new StringBuilder("UPDATE ")
             .append(LocationEntry.TABLE_NAME).append(" SET ")
+            .append(LocationEntry.COLUMN_NAME_USER).append("= ?,")
             .append(LocationEntry.COLUMN_NAME_PROVIDER).append("= ?,")
             .append(LocationEntry.COLUMN_NAME_TIME).append("= ?,")
             .append(LocationEntry.COLUMN_NAME_ACCURACY).append("= ?,")
@@ -294,6 +295,7 @@ public class SQLiteLocationDAO implements LocationDAO {
             .append("= ?")
             .toString();
     db.execSQL(sql, new Object[] {
+            location.getUser(),
             location.getProvider(),
             location.getTime(),
             location.getAccuracy(),
@@ -436,6 +438,7 @@ public class SQLiteLocationDAO implements LocationDAO {
 
   private ContentValues getContentValues(BackgroundLocation l) {
     ContentValues values = new ContentValues();
+    values.put(LocationEntry.COLUMN_NAME_USER, l.getUser());
     values.put(LocationEntry.COLUMN_NAME_PROVIDER, l.getProvider());
     values.put(LocationEntry.COLUMN_NAME_TIME, l.getTime());
     values.put(LocationEntry.COLUMN_NAME_ACCURACY, l.getAccuracy());
@@ -461,6 +464,7 @@ public class SQLiteLocationDAO implements LocationDAO {
   private String[] queryColumns() {
     String[] columns = {
             LocationEntry._ID,
+            LocationEntry.COLUMN_NAME_USER,
             LocationEntry.COLUMN_NAME_PROVIDER,
             LocationEntry.COLUMN_NAME_TIME,
             LocationEntry.COLUMN_NAME_ACCURACY,
