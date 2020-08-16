@@ -332,20 +332,20 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     private void setLowerAccuracy() {
         Integer accuracy = mConfig.getDesiredAccuracy();
         if(accuracy >= 100) {
-            criteria.setHorizontalAccuracy(Criteria.ACCURACY_LOW);
+            mConfig.setDesiredAccuracy(Criteria.ACCURACY_LOW);
         }
         else {
-            criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
+            mConfig.setDesiredAccuracy(Criteria.ACCURACY_MEDIUM);
         }
     }
 
     private void setHigherAccuracy() {
         Integer accuracy = mConfig.getDesiredAccuracy();
         if (accuracy >= 1000) {
-            criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
+            mConfig.setDesiredAccuracy(Criteria.ACCURACY_MEDIUM);
         }
         else {
-            criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+            mConfig.setDesiredAccuracy(Criteria.ACCURACY_HIGH);
         }
     }
 
