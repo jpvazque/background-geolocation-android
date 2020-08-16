@@ -32,6 +32,7 @@ import com.marianhello.bgloc.provider.AbstractLocationProvider;
 import com.marianhello.utils.ToneGenerator.Tone;
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.ArrayList;
