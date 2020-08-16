@@ -256,18 +256,19 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     }
 
     private Integer getPredictedFrecuency(Boolean action,Location location){ //true aumentar frecuancia -1 min false disminuir frecuancia +1 min
-        float exp = (float) (-1 * (location.getSpeed() - 1.67));
+        float exp = (float) (-1 * (location.getSpeed() - 1.67)); //people walking pace (6km/h = 1.67 m/s)
         Integer newFrecuency = (int) (Math.round((this.minFrecuency/(1+Math.pow(2.72, exp))) + this.maxFrecuency));
+        int minutes = 1000 * 60;
         if(action){
-            if((newFrecuency -1) < maxFrecuency){
+            if((newFrecuency - minutes ) < maxFrecuency){
                 return maxFrecuency;
             }
-            return newFrecuency - 1;
+            return newFrecuency - minutes;
         }
-        if((newFrecuency +1) > minFrecuency) {
+        if((newFrecuency + minutes) > minFrecuency) {
             return minFrecuency;
         }
-        return  newFrecuency + 1;
+        return  newFrecuency + minutes;
     }
 
     private Boolean isInHome(Float homeRadius, Location location) {
