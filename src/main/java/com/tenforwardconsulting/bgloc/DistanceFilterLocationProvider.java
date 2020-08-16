@@ -80,14 +80,12 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     private Network connectedNetwork;
     private final Integer minFrecuency; //milliseconds
     private final Integer maxFrecuency; //milliseconds
-    private Integer frecuency;
 
     public DistanceFilterLocationProvider(Context context) {
         super(context);
         PROVIDER_ID = Config.DISTANCE_FILTER_PROVIDER;
         maxFrecuency = 300000;
         minFrecuency = 900000;
-        frecuency = 900000;
     }
 
     @Override
@@ -134,7 +132,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         logger.info("Start recording");
         scaledDistanceFilter = mConfig.getDistanceFilter();
         isStarted = true;
-        setPace(false,mConfig.getInterval());
+        setPace(false);
     }
 
     @Override
@@ -157,7 +155,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     public void onCommand(int commandId, int arg1) {
         switch(commandId) {
             case CMD_SWITCH_MODE:
-                setPace(arg1 == BACKGROUND_MODE ? false : true,mConfig.getInterval());
+                setPace(arg1 == BACKGROUND_MODE ? false : true);
                 return;
         }
     }
@@ -180,7 +178,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
      *
      * @param value set true to engage "aggressive", battery-consuming tracking, false for stationary-region tracking
      */
-    private void setPace(Boolean value, Integer interval) {
+    private void setPace(Boolean value) {
         if (!isStarted) {
             return;
         }
@@ -215,11 +213,11 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                 List<String> matchingProviders = locationManager.getAllProviders();
                 for (String provider: matchingProviders) {
                     if (provider != LocationManager.PASSIVE_PROVIDER) {
-                        locationManager.requestLocationUpdates(provider,interval, scaledDistanceFilter, this);
+                        locationManager.requestLocationUpdates(provider,mConfig.getInterval(), scaledDistanceFilter, this);
                     }
                 }
             } else {
-                locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), interval, scaledDistanceFilter, this);
+                locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), mConfig.getInterval(), scaledDistanceFilter, this);
             }
         } catch (SecurityException e) {
             logger.error("Security exception: {}", e.getMessage());
@@ -227,42 +225,33 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         }
     }
 
-    private Integer getTimeInterval(Location location){
+    private void setTimeInterval(Location location){
         Integer newFrecuency;
         if(mBatteryManager.isCharging()){
-            //check timer expired
-            newFrecuency = getPredictedFrecuency(false,location);
+            newFrecuency = getPredictedFrecuency(true,location);
         }else{
             if(isInHome(mConfig.getHomeRadius(), location)) {
                 if(isNight()){
                     setLowerAccuracy();
-                    //check timer expired
-                    newFrecuency = getPredictedFrecuency(false,location);
-                }else{
-                    //check timer expired
-                    newFrecuency = getPredictedFrecuency(false,location);
                 }
+                newFrecuency = getPredictedFrecuency(false,location);
             }else{
                 if(hasChangedConnectedNetwork()) {
                     setHigherAccuracy();
-                    //check timer expired
                     newFrecuency = getPredictedFrecuency(true,location);
                 }else{
                     if(haveChangedAvailableNetworks()) {
-                        //check timer expired
                         newFrecuency = getPredictedFrecuency(true,location);
                     }else{
                         setLowerAccuracy();
-                        //check timer expired
                         newFrecuency = getPredictedFrecuency(false,location);
                     }
                 }
             } 
         }
-        setFrecuency(newFrecuency);
         setAvailableNetworks(connMgr.getAllNetworks());
         setConnectedNetwork(connMgr.getActiveNetwork());
-        return newFrecuency;
+        mConfig.setInterval(newFrecuency);
     }
 
     private Integer getPredictedFrecuency(Boolean action,Location location){ //true aumentar frecuancia -1 min false disminuir frecuancia +1 min
@@ -270,22 +259,14 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         Integer newFrecuency = (int) (Math.round((this.minFrecuency/(1+Math.pow(2.72, exp))) + this.maxFrecuency));
         if(action){
             if((newFrecuency -1) < maxFrecuency){
-                return 5;
+                return maxFrecuency;
             }
             return newFrecuency - 1;
         }
         if((newFrecuency +1) > minFrecuency) {
-            return 15;
+            return minFrecuency;
         }
         return  newFrecuency + 1;
-    }
-
-    private Integer getFrecuency() {
-        return this.frecuency;
-    }
-
-    private void setFrecuency(Integer Frecuency) {
-        this.frecuency = frecuency;
     }
 
     private Boolean isInHome(Float homeRadius, Location location) {
@@ -306,7 +287,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     private Boolean isNight() {
         Calendar today = Calendar.getInstance(TimeZone.getTimeZone("America/Guayaquil"));
         int hour = (int) today.get(Calendar.HOUR_OF_DAY);
-        if(hour > 20){
+        if(hour >= 20){
             return true;
         }
         return false;
@@ -314,17 +295,18 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
 
     private Boolean hasChangedConnectedNetwork() {
         Network actualNetwork = connMgr.getActiveNetwork();
-        if(connectedNetwork.equals(actualNetwork)) {
-            return false;
-        }
-        return true;
+        return !connectedNetwork.equals(actualNetwork);
     }
 
     private Boolean haveChangedAvailableNetworks() {
         Network[] actualNetworks = connMgr.getAllNetworks();
-        for(int i=0; i<availableNetworks.length; i++) {
-            if(!availableNetworks[i].equals(actualNetworks[i])) {
-                return true;
+        if(actualNetworks.length != availableNetworks.length){
+            return true;
+        }else{
+            for(int i=0; i<actualNetworks.length; i++) {
+                if(!Arrays.asList(availableNetworks).contains(actualNetworks[i])) {
+                    return true;
+                }
             }
         }
         return false;
@@ -351,23 +333,19 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         if(accuracy >= 100) {
             criteria.setHorizontalAccuracy(Criteria.ACCURACY_LOW);
         }
-        else if(accuracy >= 0) {
+        else {
             criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
         }
-
-        criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
     }
 
     private Integer setHigherAccuracy() {
         Integer accuracy = mConfig.getDesiredAccuracy();
         if (accuracy >= 1000) {
-            return Criteria.ACCURACY_MEDIUM;
+            criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
         }
-        else if (accuracy >= 0) {
-            return Criteria.ACCURACY_HIGH;
+        else {
+            criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
         }
-
-        return Criteria.ACCURACY_MEDIUM;
     }
 
     /**
@@ -442,12 +420,11 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
 
     public void onLocationChanged(Location location) {
         logger.debug("Location change: {} isMoving={}", location.toString(), isMoving);
-
-        Integer interval = getTimeInterval(location);
+        setTimeInterval(location);
 
         if (!isMoving && !isAcquiringStationaryLocation && stationaryLocation==null) {
             // Perhaps our GPS signal was interupted, re-acquire a stationaryLocation now.
-            setPace(false, interval);
+            setPace(false);
         }
 
         showDebugToast( "mv:" + isMoving + ",acy:" + location.getAccuracy() + ",v:" + location.getSpeed() + ",df:" + scaledDistanceFilter);
@@ -472,7 +449,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                 playDebugTone(Tone.DOODLY_DOO);
                 isAcquiringSpeed = false;
                 scaledDistanceFilter = calculateDistanceFilter(location.getSpeed());
-                setPace(true, interval);
+                setPace(true);
             } else {
                 playDebugTone(Tone.BEEP);
                 return;
@@ -489,7 +466,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             if (newDistanceFilter != scaledDistanceFilter.intValue()) {
                 logger.info("Updating distanceFilter: new={} old={}", newDistanceFilter, scaledDistanceFilter);
                 scaledDistanceFilter = newDistanceFilter;
-                setPace(true, interval);
+                setPace(true);
             }
             if (lastLocation != null && location.distanceTo(lastLocation) < mConfig.getDistanceFilter()) {
                 return;
@@ -550,7 +527,6 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     public void onExitStationaryRegion(Location location) {
         // Filter-out spurious region-exits:  must have at least a little speed to move out of stationary-region
         playDebugTone(Tone.BEEP_BEEP_BEEP);
-        Integer interval = getTimeInterval(location);
 
         logger.info("Exited stationary: lat={} long={} acy={}}'",
                 location.getLatitude(), location.getLongitude(), location.getAccuracy());
@@ -561,7 +537,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             // Kill the current region-monitor we just walked out of.
             locationManager.removeProximityAlert(stationaryRegionPI);
             // Engage aggressive tracking.
-            this.setPace(true, interval);
+            this.setPace(true);
         } catch (SecurityException e) {
             logger.error("Security exception: {}", e.getMessage());
             this.handleSecurityException(e);
@@ -626,7 +602,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         public void onReceive(Context context, Intent intent)
         {
             logger.info("stationaryAlarm fired");
-            setPace(false,mConfig.getInterval());
+            setPace(false);
         }
     };
 
@@ -666,7 +642,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             if (entering) {
                 logger.debug("Entering stationary region");
                 if (isMoving) {
-                    setPace(false,mConfig.getInterval());
+                    setPace(false);
                 }
             }
             else {
