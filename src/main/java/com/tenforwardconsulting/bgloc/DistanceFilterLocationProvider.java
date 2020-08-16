@@ -339,7 +339,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         }
     }
 
-    private Integer setHigherAccuracy() {
+    private void setHigherAccuracy() {
         Integer accuracy = mConfig.getDesiredAccuracy();
         if (accuracy >= 1000) {
             criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
