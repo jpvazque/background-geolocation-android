@@ -24,7 +24,7 @@ import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationE
 public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     private static final String TAG = SQLiteOpenHelper.class.getName();
     public static final String SQLITE_DATABASE_NAME = "cordova_bg_geolocation.db";
-    public static final int DATABASE_VERSION = 16;
+    public static final int DATABASE_VERSION = 17;
 
     public static final String TEXT_TYPE = " TEXT";
     public static final String INTEGER_TYPE = " INTEGER";
@@ -131,6 +131,11 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
                     " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE + REAL_TYPE);
                 alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
                     " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_RADIUS + REAL_TYPE);
+            case 16:
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_NETWORKS + INTEGER_TYPE);
+                alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
+                    " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_CENSUS_AREA + REAL_TYPE);
 
                 break; // DO NOT FORGET TO MOVE DOWN BREAK ON DB UPGRADE!!!
             default:

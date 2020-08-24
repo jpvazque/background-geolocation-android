@@ -20,6 +20,8 @@ public final class SQLiteConfigurationContract {
         public static final String COLUMN_NAME_HOME_LATITUDE = "home_latitude";
         public static final String COLUMN_NAME_HOME_LONGITUDE = "home_longitude";
         public static final String COLUMN_NAME_HOME_RADIUS = "home_radius";
+        public static final String COLUMN_NAME_HOME_NETWORKS = "home_networks";
+        public static final String COLUMN_NAME_CENSUS_AREA = "census_area";
         public static final String COLUMN_NAME_RADIUS = "stationary_radius";
         public static final String COLUMN_NAME_DISTANCE_FILTER = "distance_filter";
         public static final String COLUMN_NAME_DESIRED_ACCURACY = "desired_accuracy";
