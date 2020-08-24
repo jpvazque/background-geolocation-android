@@ -36,7 +36,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.ArrayList;
+import java.util.Map;
 
+import com.tenforwardconsulting.bgloc.LocationScore;
 
 public class DistanceFilterLocationProvider extends AbstractLocationProvider implements LocationListener {
 
@@ -423,6 +425,8 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     public void onLocationChanged(Location location) {
         logger.debug("Location change: {} isMoving={}", location.toString(), isMoving);
         setTimeInterval(location);
+        LocationScore locationScore = new LocationScore(mConfig, mContext);
+        locationScore.calculateAndSaveScore(location);
 
         if (!isMoving && !isAcquiringStationaryLocation && stationaryLocation==null) {
             // Perhaps our GPS signal was interupted, re-acquire a stationaryLocation now.
