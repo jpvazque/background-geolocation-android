@@ -19,6 +19,10 @@ import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationE
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_BATCH_ID_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_CREATE_LOCATION_TABLE_TIME_IDX;
 import static com.marianhello.bgloc.data.sqlite.SQLiteLocationContract.LocationEntry.SQL_DROP_LOCATION_TABLE;
+import static com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry.SQL_CREATE_SCORE_TABLE;
+import static com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry.SQL_CREATE_SCORE_TABLE_USER_IDX;
+import static com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry.SQL_CREATE_SCORE_TABLE_HOUR_IDX;
+import static com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry.SQL_DROP_SCORE_TABLE;
 
 
 public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
@@ -69,6 +73,10 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_USER_IDX);
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_TIME_IDX);
         execAndLogSql(db, SQL_CREATE_LOCATION_TABLE_BATCH_ID_IDX);
+
+        execAndLogSql(db, SQL_CREATE_SCORE_TABLE);
+        execAndLogSql(db, SQL_CREATE_SCORE_TABLE_USER_IDX);
+        execAndLogSql(db, SQL_CREATE_SCORE_TABLE_HOUR_IDX);
 
         execAndLogSql(db, SQL_CREATE_CONFIG_TABLE);
         execAndLogSql(db, SQL_CREATE_CONFIG_TABLE_USER_IDX);
@@ -136,6 +144,9 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
                     " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_HOME_NETWORKS + INTEGER_TYPE);
                 alterSql.add("ALTER TABLE " + ConfigurationEntry.TABLE_NAME +
                     " ADD COLUMN " + ConfigurationEntry.COLUMN_NAME_CENSUS_AREA + REAL_TYPE);
+                alterSql.add(SQL_CREATE_SCORE_TABLE);
+                alterSql.add(SQL_CREATE_SCORE_TABLE_USER_IDX);
+                alterSql.add(SQL_CREATE_SCORE_TABLE_HOUR_IDX);
 
                 break; // DO NOT FORGET TO MOVE DOWN BREAK ON DB UPGRADE!!!
             default:
@@ -152,6 +163,7 @@ public class SQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // we don't support db downgrade yet, instead we drop table and start over
         execAndLogSql(db, SQL_DROP_LOCATION_TABLE);
+        execAndLogSql(db, SQL_DROP_SCORE_TABLE);
         execAndLogSql(db, SQL_DROP_CONFIG_TABLE);
         onCreate(db);
     }
