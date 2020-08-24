@@ -19,7 +19,7 @@ public final class SQLiteScoreContract {
         public static final String COLUMN_NAME_TIME_AWAY = "time_away";
         public static final String COLUMN_NAME_HOUR = "hour";
         public static final String COLUMN_NAME_DATE = "date";
-        public static final String DATE_FORMAT = "MM/dd/YYYY";
+        public static final String DATE_FORMAT = "YYYY-MM-dd hh:mm:ss";
 
         public static final String SQL_CREATE_SCORE_TABLE =
                 "CREATE TABLE " + ScoreEntry.TABLE_NAME + " (" +
