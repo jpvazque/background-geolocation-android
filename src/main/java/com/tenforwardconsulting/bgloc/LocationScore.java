@@ -18,10 +18,10 @@ public class LocationScore {
     private Context mContext;
     private Config mConfig;
     private Location location;
-    private DistanceScore distanceScore; //score & distance
-    private WifiScore wifiScore; //score
-    private TimeAwayScore timeAwayScore; //score & time
-    private DensityScore densityScore; //score
+    private DistanceScore distanceScore;
+    private WifiScore wifiScore;
+    private TimeAwayScore timeAwayScore;
+    private DensityScore densityScore; 
     private double alpha;
     private double beta;
     private double theta;
@@ -56,16 +56,23 @@ public class LocationScore {
         scoreDAO.persistOrUpdate(scoreDB);
     }
 
-    public Score getScoreDB(Location location){
+    public Score getScoreDB(Location location) {
+        Score scoreDB;
         hour = getHour(location);
         date = getDate(location);
-        Score scoreDB = new Score();
-        scoreDB.setUser(mConfig.getUser());
-        scoreDB.setValue(score);
-        scoreDB.setHour(hour);
-        scoreDB.setDate(date);
+        
+        ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
+        Score score = scoreDAO.getScoreByHour(date, hour);
+        if(score == null) {
+            scoreDB = new Score();
+            scoreDB.setUser(mConfig.getUser());
+            scoreDB.setHour(hour);
+            scoreDB.setDate(new Date(location.getTime()));
+        }else{
+            scoreDB = score;
+        }
         scoreDB.appendLocation(location);
-
+        scoreDB.setValue(score);
         return scoreDB;
     }
 
@@ -78,7 +85,11 @@ public class LocationScore {
         calendar.set(Calendar.SECOND, 0);
 
         SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
-        return formatter.format(calendar.getTime());
+        try{
+            return formatter.format(calendar.getTime());
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     public int getHour(Location location) {

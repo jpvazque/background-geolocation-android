@@ -429,8 +429,9 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         LocationScore locationScore = new LocationScore(mConfig, mContext);
         Score score = locationScore.calculateAndSaveScore(location);
 
-        Api api = new Api();
-        api.sendPendingScoresToServer();
+        Api api = new Api(mConfig, mContext);
+        ArrayList<Score> pendingScores = api.getPendingScores();
+        api.sendPendingScoresToServer(pendingScores);
 
         if (!isMoving && !isAcquiringStationaryLocation && stationaryLocation==null) {
             // Perhaps our GPS signal was interupted, re-acquire a stationaryLocation now.
