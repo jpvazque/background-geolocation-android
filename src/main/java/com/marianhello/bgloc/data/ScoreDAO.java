@@ -13,6 +13,7 @@ public interface ScoreDAO {
     long persistOrUpdate(Score score);
     void deleteScoreById(long scoreId);
     int deleteAllScores();
+    int deleteScores();
     int deleteScoresByDate(Date date);
     int deleteScoresByDate(String date);
 }

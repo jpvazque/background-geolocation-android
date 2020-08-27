@@ -9,6 +9,9 @@ import com.marianhello.bgloc.Config;
 import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
+import com.marianhello.utils.Encryption;
+
+import org.json.JSONArray;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -182,17 +185,17 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @return rowId or -1 when error occured
    * @return rowId or -2 when not updated
    */
-  public long updateScoreIfLower(Score currentScore, Score newScore) {
-    if(currentScore.getValue() < newScore.getValue()) {
-        Float distanceToHome = Math.max(currentScore.getDistanceToHome(), newScore.getDistanceToHome());
-        newScore.setDistanceToHome(distanceToHome);
+  public long mergeScoresAndUpdate(Score currentScore, Score newScore) {
+    Float value = Math.max(currentScore.getValue(), newScore.getValue());
+    newScore.setValue(value);
 
-        Float timeAway = Math.max(currentScore.getTimeAway(), newScore.getTimeAway());
-        newScore.setTimeAway(timeAway);
+    Float distanceToHome = Math.max(currentScore.getDistanceToHome(), newScore.getDistanceToHome());
+    newScore.setDistanceToHome(distanceToHome);
 
-        return updateScore(newScore);
-    }
-    return -2;
+    Float timeAway = Math.max(currentScore.getTimeAway(), newScore.getTimeAway());
+    newScore.setTimeAway(timeAway);
+
+    return updateScore(newScore);
   }
 
   /**
@@ -206,7 +209,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     if(currentScore == null) {
         return persistScore(score);
     } else {
-        return updateScoreIfLower(currentScore, score);
+        return mergeScoresAndUpdate(currentScore, score);
     }
   }
 
@@ -286,6 +289,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     s.setTimeAway(c.getInt(c.getColumnIndex(ScoreEntry.COLUMN_NAME_TIME_AWAY)));
     s.setHour(c.getInt(c.getColumnIndex(ScoreEntry.COLUMN_NAME_HOUR)));
     s.setDate(c.getString(c.getColumnIndex(ScoreEntry.COLUMN_NAME_DATE)));
+    s.setLocations(decryptLocations(c.getString(c.getColumnIndex(ScoreEntry.COLUMN_NAME_LOCATIONS))));
 
     return s;
   }
@@ -298,8 +302,17 @@ public class SQLiteScoreDAO implements ScoreDAO {
     values.put(ScoreEntry.COLUMN_NAME_TIME_AWAY, s.getTimeAway());
     values.put(ScoreEntry.COLUMN_NAME_HOUR, s.getHour());
     values.put(ScoreEntry.COLUMN_NAME_DATE, s.getDate());
+    values.put(ScoreEntry.COLUMN_NAME_LOCATIONS, encryptLocations(s.getLocations()));
 
     return values;
+  }
+
+  private String encryptLocations(JSONArray locations) {
+      return Encryption.encrypt(locations.toString(), config.getUser());
+  }
+
+  private JSONArray decryptLocations(String locations) {
+      return new JSONArray(Encryption.decrypt(locations, config.getUser()));
   }
 
   private String[] queryColumns() {
@@ -310,13 +323,14 @@ public class SQLiteScoreDAO implements ScoreDAO {
         ScoreEntry.COLUMN_NAME_DISTANCE_TO_HOME,
         ScoreEntry.COLUMN_NAME_TIME_AWAY,
         ScoreEntry.COLUMN_NAME_HOUR,
-        ScoreEntry.COLUMN_NAME_DATE
+        ScoreEntry.COLUMN_NAME_DATE,
+        ScoreEntry.COLUMN_NAME_LOCATIONS
     };
 
     return columns;
   }
 
-  private String getFormattedDate(Date date) throws IllegalArgumentException {
+  private String getFormattedDate(Date date) {
     SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
     try {
         return formatter.format(date);

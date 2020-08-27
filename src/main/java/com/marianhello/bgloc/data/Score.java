@@ -9,6 +9,7 @@ This is a new class
 
 package com.marianhello.bgloc;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,11 +18,16 @@ import android.support.annotation.Nullable;
 import com.marianhello.bgloc.data.AbstractLocationTemplate;
 import com.marianhello.bgloc.data.LocationTemplate;
 import com.marianhello.bgloc.data.LocationTemplateFactory;
+import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
 import com.marianhello.utils.CloneHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+
+import java.util.Calendar
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -45,6 +51,7 @@ public class Score implements Parcelable
     private Integer timeAway;
     private Integer hour;
     private String date;
+    private JSONArray decryptedLocations;
 
     public Score () {
     }
@@ -57,6 +64,7 @@ public class Score implements Parcelable
         this.timeAway = score.timeAway;
         this.hour = score.hour;
         this.date = score.date;
+        this.decryptedLocations = score.decryptedLocations;
     }
 
     private Score(Parcel in) {
@@ -76,6 +84,7 @@ public class Score implements Parcelable
         score.timeAway = 0;
         score.hour = 0;
         score.date = "";
+        score.decryptedLocations = new JSONArray();
 
         return score;
     }
@@ -151,6 +160,55 @@ public class Score implements Parcelable
 
     public void setDate(String date) { this.date = date; }
 
+    public void setDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
+        try {
+            this.date = formatter.format(calendar.getTime());
+        } catch(IllegalArgumentException e) {
+            this.date = null;
+            e.printStackTrace();
+        }
+    }
+
+
+    public void setLocations(JSONArray locations) { this.decryptedLocations = locations}
+
+    public JSONArray getLocations() { return decryptedLocations; }
+
+    public void appendLocation(Location location) {
+        if(decryptedLocations == null) {
+            decryptedLocations = new JSONArray();
+        }
+        decryptedLocations.put(getJSONLocationFromLocation(location));
+    }
+
+    public void appendLocation(JSONObject location) {
+        if(decryptedLocations == null) {
+            decryptedLocations = new JSONArray();
+        }
+        decryptedLocations.put(location);
+    }
+
+    public JSONObject getLastLocation() {
+        if(decryptedLocations == null || decryptedLocations.length() == 0) {
+            return null
+        }
+        return decryptedLocations.get(decryptedLocations.length() - 1);
+    }
+
+    private JSONObject getJSONLocationFromLocation(Location location) {
+        JSONObject jsonLocation = new JSONObject();
+        jsonLocation.put("latitude", location.getLatitude());
+        jsonLocation.put("longitude", location.getLongitude());
+        jsonLocation.put("timestamp", location.getTime());
+        return jsonLocation;
+    }
 
     @Override
     public String toString () {
