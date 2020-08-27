@@ -234,6 +234,26 @@ public class SQLiteScoreDAO implements ScoreDAO {
   }
 
   /**
+   * Delete scores, except the last one
+   * Query: DELETE FROM SCORE WHERE USER = CONFIG.USER AND ID <> (SELECT MAX(ID) FROM SCORE WHERE USER = CONFIG.USER)
+   * @return number of rows deleted
+   */
+  public int deleteScores() {
+    String whereClause = "? = ? AND ID <> (SELECT MAX(?) FROM ? WHERE ? = ?)";
+    String[] whereArgs = {
+        ScoreEntry.COLUMN_NAME_USER,
+        config.getUser(),
+        ScoreEntry._ID,
+        ScoreEntry._ID,
+        ScoreEntry.TABLE_NAME,
+        ScoreEntry.COLUMN_NAME_USER,
+        config.getUser()
+    };
+
+    return db.delete(ScoreEntry.TABLE_NAME, whereClause, whereArgs);
+  }
+
+  /**
    * Delete all of a specific date
    * @param date is Date type
    * @return number of rows deleted
