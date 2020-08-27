@@ -43,6 +43,8 @@ public class Config implements Parcelable
     private Float homeLatitude;
     private Float homeLongitude;
     private Float homeRadius;
+    private Integer homeNetworks;
+    private Float censusArea;
     private Float stationaryRadius;
     private Integer distanceFilter;
     private Integer desiredAccuracy;
@@ -77,6 +79,8 @@ public class Config implements Parcelable
         this.homeLatitude = config.homeLatitude;
         this.homeLongitude = config.homeLongitude;
         this.homeRadius = config.homeRadius;
+        this.homeNetworks = config.homeNetworks;
+        this.censusArea = config.censusArea;
         this.stationaryRadius = config.stationaryRadius;
         this.distanceFilter = config.distanceFilter;
         this.desiredAccuracy = config.desiredAccuracy;
@@ -110,6 +114,8 @@ public class Config implements Parcelable
         setHomeLatitude(in.readFloat());
         setHomeLongitude(in.readFloat());
         setHomeRadius(in.readFloat());
+        setHomeNetworks(in.readInt());
+        setCensusArea(in.readFloat());
         setStationaryRadius(in.readFloat());
         setDistanceFilter(in.readInt());
         setDesiredAccuracy(in.readInt());
@@ -143,6 +149,8 @@ public class Config implements Parcelable
         config.homeLatitude = 0f;
         config.homeLongitude = 0f;
         config.homeRadius = 20f;
+        config.homeNetworks = 0;
+        config.censusArea = 20000f;
         config.stationaryRadius = 50f;
         config.distanceFilter = 500;
         config.desiredAccuracy = 100;
@@ -181,6 +189,8 @@ public class Config implements Parcelable
         out.writeFloat(getHomeLatitude());
         out.writeFloat(getHomeLongitude());
         out.writeFloat(getHomeRadius());
+        out.writeInt(getHomeNetworks());
+        out.writeFloat(getCensusArea());
         out.writeFloat(getStationaryRadius());
         out.writeInt(getDistanceFilter());
         out.writeInt(getDesiredAccuracy());
@@ -252,6 +262,22 @@ public class Config implements Parcelable
     public void setHomeRadius(float homeRadius) { this.homeRadius = homeRadius; }
 
     public void setHomeRadius(double homeRadius) { this.homeRadius = (float) homeRadius; }
+
+
+    public boolean hasHomeNetworks() { return homeNetworks != null; }
+
+    public Float getHomeNetworks() { return homeNetworks; }
+
+    public void setHomeNetworks(Integer homeNetworks) { this.homeNetworks = homeNetworks; }
+
+
+    public boolean hasCensusArea() { return censusArea != null; }
+
+    public Float getCensusArea() { return censusArea; }
+
+    public void setCensusArea(float censusArea) { this.censusArea = censusArea; }
+
+    public void setCensusArea(double censusArea) { this.censusArea = (float) censusArea; }
 
 
     public boolean hasStationaryRadius() {
@@ -582,6 +608,8 @@ public class Config implements Parcelable
                 .append(" homeLatitude=").append(getHomeLatitude())
                 .append(" homeLongitude=").append(getHomeLongitude())
                 .append(" homeRadius=").append(getHomeRadius())
+                .append(" homeNetworks=").append(getHomeNetworks())
+                .append(" censusArea=").append(getCensusArea())
                 .append(" stationaryRadius=").append(getStationaryRadius())
                 .append(" desiredAccuracy=").append(getDesiredAccuracy())
                 .append(" interval=").append(getInterval())
@@ -636,6 +664,12 @@ public class Config implements Parcelable
         }
         if (config2.hasHomeRadius()) {
             merger.setHomeRadius(config2.getHomeRadius());
+        }
+        if (config2.hasHomeNetworks()) {
+            merger.setHomeNetworks(config2.getHomeNetworks());
+        }
+        if (config2.hasCensusArea()) {
+            merger.setCensusArea(config2.getCensusArea());
         }
         if (config2.hasStationaryRadius()) {
             merger.setStationaryRadius(config2.getStationaryRadius());

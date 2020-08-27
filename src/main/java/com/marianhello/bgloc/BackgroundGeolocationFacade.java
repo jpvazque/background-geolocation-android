@@ -32,6 +32,8 @@ import com.marianhello.bgloc.service.LocationServiceProxy;
 import com.marianhello.bgloc.data.LocationTransform;
 import com.marianhello.bgloc.sync.AccountHelper;
 import com.marianhello.bgloc.sync.NotificationHelper;
+import com.marianhello.bgloc.data.Score;
+import com.marianhello.bgloc.data.ScoreDao;
 import com.marianhello.bgloc.sync.SyncService;
 import com.marianhello.logging.DBLogReader;
 import com.marianhello.logging.LogEntry;
@@ -455,6 +457,11 @@ public class BackgroundGeolocationFacade {
     private void persistConfiguration(Config config) throws NullPointerException {
         ConfigurationDAO dao = DAOFactory.createConfigurationDAO(getContext());
         dao.persistConfiguration(config);
+    }
+
+    public Collection<Score> getScores() {
+        ScoreDao dao = DAOFactory.createScoreDAO(getContext());
+        return dao.getTodayScores();
     }
 
     private Context getContext() {

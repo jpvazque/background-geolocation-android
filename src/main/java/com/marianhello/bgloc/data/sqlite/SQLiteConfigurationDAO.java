@@ -37,6 +37,8 @@ public class SQLiteConfigurationDAO implements ConfigurationDAO {
       ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE,
       ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE,
       ConfigurationEntry.COLUMN_NAME_HOME_RADIUS,
+      ConfigurationEntry.COLUMN_NAME_HOME_NETWORKS,
+      ConfigurationEntry.COLUMN_NAME_CENSUS_AREA,
       ConfigurationEntry.COLUMN_NAME_RADIUS,
       ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER,
       ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY,
@@ -107,6 +109,8 @@ public class SQLiteConfigurationDAO implements ConfigurationDAO {
     config.setHomeLatitude(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE)));
     config.setHomeLongitude(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE)));
     config.setHomeRadius(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_RADIUS)));
+    config.setHomeNetworks(c.getInt(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_HOME_NETWORKS)));
+    config.setCensusArea(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_CENSUS_AREA)));
     config.setStationaryRadius(c.getFloat(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_RADIUS)));
     config.setDistanceFilter(c.getInt(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER)));
     config.setDesiredAccuracy(c.getInt(c.getColumnIndex(ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY)));
@@ -142,6 +146,8 @@ public class SQLiteConfigurationDAO implements ConfigurationDAO {
     values.put(ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE, config.getHomeLatitude());
     values.put(ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE, config.getHomeLongitude());
     values.put(ConfigurationEntry.COLUMN_NAME_HOME_RADIUS, config.getHomeRadius());
+    values.put(ConfigurationEntry.COLUMN_NAME_HOME_NETWORKS, config.getHomeNetworks());
+    values.put(ConfigurationEntry.COLUMN_NAME_CENSUS_AREA, config.getCensusArea());
     values.put(ConfigurationEntry.COLUMN_NAME_RADIUS, config.getStationaryRadius());
     values.put(ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER, config.getDistanceFilter());
     values.put(ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY, config.getDesiredAccuracy());
