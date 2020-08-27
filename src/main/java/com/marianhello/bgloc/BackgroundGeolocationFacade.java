@@ -460,7 +460,7 @@ public class BackgroundGeolocationFacade {
     }
 
     public Collection<Score> getScores() {
-        ScoreDao dao = DAOFactory.createScoreDAO(getContext());
+        ScoreDao dao = DAOFactory.createScoreDAO(getContext(), mConfig);
         return dao.getTodayScores();
     }
 
