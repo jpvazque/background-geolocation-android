@@ -7,7 +7,7 @@ https://github.com/christocracy/cordova-plugin-background-geolocation
 This is a new class
 */
 
-package com.marianhello.bgloc;
+package com.marianhello.bgloc.data;
 
 import android.location.Location;
 import android.os.Bundle;
