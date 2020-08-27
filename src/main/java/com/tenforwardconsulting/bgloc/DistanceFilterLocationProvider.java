@@ -32,7 +32,7 @@ import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.provider.AbstractLocationProvider;
 import com.marianhello.bgloc.provider.Api;
 import com.marianhello.utils.ToneGenerator.Tone;
-import com.tenforwardconsulting.bgloc.LocationScore;
+// import com.tenforwardconsulting.bgloc.LocationScore;
 
 import java.util.ArrayList;
 import java.util.Arrays;

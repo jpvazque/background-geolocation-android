@@ -8,7 +8,7 @@ import com.marianhello.bgloc.data.DAOFactory;
 import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
-import com.tenforwardconsulting.bgloc.DistanceScore;
+// import com.tenforwardconsulting.bgloc.DistanceScore;
 
 import java.util.Date;
 import java.util.Calendar;

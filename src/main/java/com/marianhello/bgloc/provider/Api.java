@@ -52,6 +52,7 @@ public class Api {
             Calendar scoreDate = Calendar.getInstance();
             try{
                 scoreDate.setTime(format.parse(score.getDate()));
+                scoreDate.set(Calendar.HOUR_OF_DAY, score.getHour());
             }catch (Exception e) {
                 //None
             }
