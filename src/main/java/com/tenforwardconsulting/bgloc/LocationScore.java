@@ -1,17 +1,20 @@
 package com.tenforwardconsulting.bgloc;
 
-import com.marianhello.bgloc.data.DAOFactory;
-import com.marianhello.bgloc.data.ScoreDAO;
-import com.marianhello.bgloc.data.Score;
 import android.content.Context;
+import android.location.Location;
+
 import com.marianhello.bgloc.Config;
-import java.util.Date;
-import java.util.Calendar;
-import java.text.SimpleDateFormat;
+import com.marianhello.bgloc.data.DAOFactory;
+import com.marianhello.bgloc.data.Score;
+import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
 import com.tenforwardconsulting.bgloc.DistanceScore;
 
-class LocationScore {
+import java.util.Date;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+
+public class LocationScore {
     private Context mContext;
     private Config mConfig;
     private Location location;
@@ -33,10 +36,12 @@ class LocationScore {
         this.mConfig = mConfig;
     }
 
-    public void calculateAndSaveScore(Location location) { //time given in minutes
+    public Score calculateAndSaveScore(Location location) { //time given in minutes
         calculatePartialScores(location);
         score = distanceScore.score * ((alpha * wifiScore.score) + (beta * densityScore.score) + (theta * timeAwayScore.score));
-        saveToDatabase(getScoreDB(location));
+        Score scoreDB = getScoreDB(location);
+        saveToDatabase(scoreDB);
+        return scoreDB;
     }
 
     public void calculatePartialScores(Location location) {
@@ -47,7 +52,7 @@ class LocationScore {
     }
 
     public void saveToDatabase(Score scoreDB) {
-        ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext);
+        ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
         scoreDAO.persistOrUpdate(scoreDB);
     }
 
@@ -59,14 +64,21 @@ class LocationScore {
         scoreDB.setValue(score);
         scoreDB.setHour(hour);
         scoreDB.setDate(date);
+        scoreDB.appendLocation(location);
 
         return scoreDB;
     }
 
     public String getDate(Location location) {
         Date date = new Date(location.getTime());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
         SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
-        return formatter.format(date);
+        return formatter.format(calendar.getTime());
     }
 
     public int getHour(Location location) {

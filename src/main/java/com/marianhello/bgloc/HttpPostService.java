@@ -5,12 +5,15 @@ import android.os.Build;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.StringBuilder;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
@@ -63,6 +66,10 @@ public class HttpPostService {
     }
 
     public int postJSONString(String body, Map headers) throws IOException {
+        return getPostConnection(body, headers).getResponseCode();
+    }
+
+    private HttpURLConnection getPostConnection(String body, Map headers) throws IOException {
         if (headers == null) {
             headers = new HashMap();
         }
@@ -90,7 +97,20 @@ public class HttpPostService {
             }
         }
 
-        return conn.getResponseCode();
+        return conn;
+    }
+
+    public static JSONObject postJSON(String url, String body, Map headers) throws IOException {
+        HttpPostService service = new HttpPostService(url);
+        HttpURLConnection conn = service.getPostConnection(body, headers);
+
+        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+        StringBuilder sb = new StringBuilder();
+        String output;
+        while ((output = br.readLine()) != null) {
+            sb.append(output);
+        }
+        return new JSONObject(sb.toString());
     }
 
     public int postJSONFile(File file, Map headers, UploadingProgressListener listener) throws IOException {

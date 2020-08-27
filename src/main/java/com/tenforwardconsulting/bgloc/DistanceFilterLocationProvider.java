@@ -28,17 +28,18 @@ import android.net.Network;
 import android.content.BroadcastReceiver;
 
 import com.marianhello.bgloc.Config;
+import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.provider.AbstractLocationProvider;
+import com.marianhello.bgloc.provider.Api;
 import com.marianhello.utils.ToneGenerator.Tone;
+import com.tenforwardconsulting.bgloc.LocationScore;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-
-import com.tenforwardconsulting.bgloc.LocationScore;
+import java.util.TimeZone;
 
 public class DistanceFilterLocationProvider extends AbstractLocationProvider implements LocationListener {
 
@@ -426,7 +427,10 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         logger.debug("Location change: {} isMoving={}", location.toString(), isMoving);
         setTimeInterval(location);
         LocationScore locationScore = new LocationScore(mConfig, mContext);
-        locationScore.calculateAndSaveScore(location);
+        Score score = locationScore.calculateAndSaveScore(location);
+
+        Api api = new Api();
+        api.sendPendingScoresToServer();
 
         if (!isMoving && !isAcquiringStationaryLocation && stationaryLocation==null) {
             // Perhaps our GPS signal was interupted, re-acquire a stationaryLocation now.

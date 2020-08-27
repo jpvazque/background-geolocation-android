@@ -3,7 +3,7 @@ package com.tenforwardconsulting.bgloc;
 import android.location.Location;
 import com.marianhello.bgloc.Config;
 
-class DistanceScore {
+public class DistanceScore {
     private Location location;
     private float am, bm, cm;
     private float al, bl, cl;
