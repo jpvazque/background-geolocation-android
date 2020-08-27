@@ -10,10 +10,12 @@ import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
 public class SQLiteScoreDAO implements ScoreDAO {
   private SQLiteDatabase db;
@@ -314,13 +316,23 @@ public class SQLiteScoreDAO implements ScoreDAO {
     return columns;
   }
 
-  private String getFormattedDate(Date date) {
+  private String getFormattedDate(Date date) throws IllegalArgumentException {
     SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
-    return formatter.format(date);
+    try {
+        return formatter.format(date);
+    } catch(IllegalArgumentException e) {
+        e.printStackTrace();
+        return null;
+    }
   }
 
   private String getDateFromFormattedString(String date) {
     SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
-    return formatter.parse(date);
+    try {
+        return formatter.parse(date);
+    } catch(ParseException e) {
+        e.printStackTrace();
+        return null;
+    }
   }
 }
