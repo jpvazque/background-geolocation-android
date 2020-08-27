@@ -258,7 +258,6 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @param date is Date type
    * @return number of rows deleted
    */
-   TODO: add user
   public int deleteScoresByDate(Date date) {
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String formattedDate = getFormattedDate(date);
@@ -271,7 +270,6 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @param date is String type
    * @return number of rows deleted
    */
-   TODO: add user
   public int deleteScoresByDate(String date) {
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String[] whereArgs = { config.getUser(), date };
