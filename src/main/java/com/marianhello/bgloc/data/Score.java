@@ -176,8 +176,7 @@ public class Score implements Parcelable
         }
     }
 
-
-    public void setLocations(JSONArray locations) { this.decryptedLocations = locations}
+    public void setLocations(JSONArray locations) { this.decryptedLocations = locations; }
 
     public JSONArray getLocations() { return decryptedLocations; }
 
@@ -197,7 +196,7 @@ public class Score implements Parcelable
 
     public JSONObject getLastLocation() {
         if(decryptedLocations == null || decryptedLocations.length() == 0) {
-            return null
+            return null;
         }
         return decryptedLocations.get(decryptedLocations.length() - 1);
     }

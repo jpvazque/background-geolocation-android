@@ -67,7 +67,7 @@ public class DistanceScore {
         return (deg * Math.PI / 180);
     }
 
-    public rad2deg(double rad) {
+    public double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
 

@@ -139,7 +139,7 @@ public class LocationScore {
         private int score;
         private int timeAway;
 
-        TimeScore() {
+        TimeAwayScore() {
             score = 1;
             timeAway = 0;
         }
