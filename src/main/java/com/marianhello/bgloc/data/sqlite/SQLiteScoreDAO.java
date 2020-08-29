@@ -308,11 +308,22 @@ public class SQLiteScoreDAO implements ScoreDAO {
   }
 
   private String encryptLocations(JSONArray locations) {
-      return Encryption.encrypt(locations.toString(), config.getUser());
+    try{
+        return Encryption.encrypt(locations.toString(), config.getUser());
+    }catch(Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+      
   }
 
   private JSONArray decryptLocations(String locations) {
-      return new JSONArray(Encryption.decrypt(locations, config.getUser()));
+    try{
+        return new JSONArray(Encryption.decrypt(locations, config.getUser()));
+    }catch(Exception e) {
+        e.printStackTrace();
+        return null;
+    }
   }
 
   private String[] queryColumns() {
