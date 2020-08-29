@@ -54,6 +54,8 @@ public final class SQLiteConfigurationContract {
                         ConfigurationEntry.COLUMN_NAME_HOME_LATITUDE + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_HOME_LONGITUDE + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_HOME_RADIUS + REAL_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_HOME_NETWORKS + INTEGER_TYPE + COMMA_SEP +
+                        ConfigurationEntry.COLUMN_NAME_CENSUS_AREA + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_RADIUS + REAL_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_DISTANCE_FILTER + INTEGER_TYPE + COMMA_SEP +
                         ConfigurationEntry.COLUMN_NAME_DESIRED_ACCURACY + INTEGER_TYPE + COMMA_SEP +
