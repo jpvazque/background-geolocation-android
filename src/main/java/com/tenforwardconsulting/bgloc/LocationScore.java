@@ -8,7 +8,6 @@ import com.marianhello.bgloc.data.DAOFactory;
 import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
-// import com.tenforwardconsulting.bgloc.DistanceScore;
 
 import java.util.Date;
 import java.util.Calendar;
@@ -17,7 +16,6 @@ import java.text.SimpleDateFormat;
 public class LocationScore {
     private Context mContext;
     private Config mConfig;
-    private Location location;
     private DistanceScore distanceScore;
     private WifiScore wifiScore;
     private TimeAwayScore timeAwayScore;

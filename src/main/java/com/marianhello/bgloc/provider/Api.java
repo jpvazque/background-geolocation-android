@@ -21,8 +21,8 @@ public class Api {
     private Config mConfig;
 
     private static final API_ENDPOINT = "http://3.22.195.65:5000";
-    private static final CREATE_REGISTRY_URL = API_ENDPOINT+"/api/integracion/table/insert";
-    private static final UPDATE_REGISTRY_URL = API_ENDPOINT+"/api/integracion/table/update";
+    private static final CREATE_REGISTRY_URL = API_ENDPOINT + "/api/integracion/table/insert";
+    private static final UPDATE_REGISTRY_URL = API_ENDPOINT + "/api/integracion/table/update";
 
     public Api(Config mConfig, Context mContext) {
         this.mContext = mContext;
