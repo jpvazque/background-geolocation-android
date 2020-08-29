@@ -13,7 +13,7 @@ public interface ScoreDAO {
     Score getScoreByHour(String date, Integer hour);
     long persistScore(Score score);
     long persistOrUpdate(Score score);
-    void deleteScoreById(long scoreId);
+    int deleteScoreById(long scoreId);
     int deleteAllScores();
     int deleteScores();
     int deleteScoresByDate(Date date);

@@ -221,7 +221,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    */
   public int deleteScoreById(long scoreId) {
     if (scoreId < 0) {
-      return;
+      return -1;
     }
     String whereClause = ScoreEntry._ID + " = ?";
     String[] whereArgs = { String.valueOf(scoreId) };
