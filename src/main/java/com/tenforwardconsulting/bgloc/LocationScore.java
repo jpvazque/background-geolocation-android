@@ -29,7 +29,7 @@ public class LocationScore {
     private double score;
 
     LocationScore(Config mConfig, Context mContext, int nroNetworksAvailable) {
-        this.nroNetworksAvailable = nroNetworksAvailable
+        this.nroNetworksAvailable = nroNetworksAvailable;
         this.mContext = mContext;
         this.mConfig = mConfig;
         alpha = beta = theta = 0.33;
@@ -102,7 +102,7 @@ public class LocationScore {
     }
 
     class WifiScore {
-        private mConfig;
+        private Config mConfig;
         private int nroHomeNetworks;
         private int nroNetworksAvailable;
         private double X;
