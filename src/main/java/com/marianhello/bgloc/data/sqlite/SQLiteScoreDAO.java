@@ -166,7 +166,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @return number of rows updated
    */
   public long updateScore(Score score) {
-    String[] values = getContentValues(score);
+    ContentValues values = getContentValues(score);
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ? " + ScoreEntry.COLUMN_NAME_HOUR + " = ?";
     String[] whereArgs = { score.getUser(), score.getDate(), String.valueOf(score.getHour()) };
 
@@ -192,7 +192,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     Float distanceToHome = Math.max(currentScore.getDistanceToHome(), newScore.getDistanceToHome());
     newScore.setDistanceToHome(distanceToHome);
 
-    Float timeAway = Math.max(currentScore.getTimeAway(), newScore.getTimeAway());
+    Integer timeAway = Math.max(currentScore.getTimeAway(), newScore.getTimeAway());
     newScore.setTimeAway(timeAway);
 
     return updateScore(newScore);
@@ -219,7 +219,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * Note: score is not actually deleted only flagged as non valid
    * @param scoreId
    */
-  public void deleteScoreById(long scoreId) {
+  public int deleteScoreById(long scoreId) {
     if (scoreId < 0) {
       return;
     }
@@ -275,7 +275,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @param date is String type
    * @return number of rows deleted
    */
-  public int deleteScoresByDate(String date) {
+  public int deleteScoresByStringDate(String date) {
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String[] whereArgs = { config.getUser(), date };
     return db.delete(ScoreEntry.TABLE_NAME, whereClause, whereArgs);
@@ -340,7 +340,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     }
   }
 
-  private String getDateFromFormattedString(String date) {
+  private Date getDateFromFormattedString(String date) {
     SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
     try {
         return formatter.parse(date);
