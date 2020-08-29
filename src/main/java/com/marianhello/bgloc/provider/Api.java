@@ -84,10 +84,9 @@ public class Api {
         return pendingScores;
     }
 
-    public void sendPostRequest(Score score){
-        JSONObject data = generateUpdateScoreBody(score);
-        
+    public void sendPostRequest(Score score){        
         try {
+            JSONObject data = generateUpdateScoreBody(score);
             JSONObject response = HttpPostService.postJSON(UPDATE_REGISTRY_URL, data.toString(), null);
             int updated = response.getJSONObject("data").getInt("rows_updated");
 
@@ -96,7 +95,7 @@ public class Api {
                 HttpPostService.postJSON(CREATE_REGISTRY_URL, insertBody, null);
             }
 
-        } catch(IOException e) {
+        } catch(Exception e) {
             //None
         }
     }
@@ -120,8 +119,8 @@ public class Api {
 
             return data;
         }catch(Exception e) {
-            return null;
             e.printStackTrace();
+            return null;
         }
     }
 
