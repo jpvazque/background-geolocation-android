@@ -16,7 +16,7 @@ public class DistanceScore {
     DistanceScore(Config mConfig, Location location){
         this.location = location;
         float homeRadius = mConfig.getHomeRadius();
-        float csRadius = mConfig.csRadius();
+        float csRadius = mConfig.getCensusRadius();
 
         al = -10; 
         bl = 0; 
@@ -31,16 +31,16 @@ public class DistanceScore {
         ch = Integer.MAX_VALUE;
 
         homeLat = mConfig.getHomeLatitude();
-        homeLong = mconfig.getHomeLatitude();
+        homeLong = mConfig.getHomeLatitude();
 
         calculateScore(location);
     }
 
-    public void calculateScore() {
+    public void calculateScore(Location location) {
         double max = 0;
 
-        distance = distance(location.latitude, 
-                            location.longitude,
+        distance = distance(location.getLatitude(), 
+                            location.getLongitude(),
                             homeLat,
                             homeLong);
         score = scoreExposure(distance, max);
