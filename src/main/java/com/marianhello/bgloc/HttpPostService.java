@@ -110,7 +110,12 @@ public class HttpPostService {
         while ((output = br.readLine()) != null) {
             sb.append(output);
         }
-        return new JSONObject(sb.toString());
+        try{
+            return new JSONObject(sb.toString());
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public int postJSONFile(File file, Map headers, UploadingProgressListener listener) throws IOException {
