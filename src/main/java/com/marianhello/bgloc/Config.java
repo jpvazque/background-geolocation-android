@@ -266,7 +266,7 @@ public class Config implements Parcelable
 
     public boolean hasHomeNetworks() { return homeNetworks != null; }
 
-    public Float getHomeNetworks() { return homeNetworks; }
+    public Integer getHomeNetworks() { return homeNetworks; }
 
     public void setHomeNetworks(Integer homeNetworks) { this.homeNetworks = homeNetworks; }
 
