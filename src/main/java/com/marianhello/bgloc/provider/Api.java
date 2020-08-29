@@ -42,7 +42,7 @@ public class Api {
         }
 
         ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
-        ScoreDAO.deleteScores();
+        scoreDAO.deleteScores();
     }
 
     public ArrayList<Score> getPendingScores() {
@@ -53,7 +53,7 @@ public class Api {
 
         Calendar prevDate = Calendar.getInstance();
         
-        ListIterator li = scoresDB.listIterator(scoresDB.size());
+        ListIterator<Score> li = scoresDB.listIterator(scoresDB.size());
         while(li.hasPrevious()) {
             Score score = li.previous();
             SimpleDateFormat format = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
