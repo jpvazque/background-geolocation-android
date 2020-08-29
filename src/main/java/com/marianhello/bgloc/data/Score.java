@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -198,7 +199,7 @@ public class Score implements Parcelable
         if(decryptedLocations == null || decryptedLocations.length() == 0) {
             return null;
         }
-        return decryptedLocations.get(decryptedLocations.length() - 1);
+        return decryptedLocations.getJSONObject(decryptedLocations.length() - 1);
     }
 
     private JSONObject getJSONLocationFromLocation(Location location) {
