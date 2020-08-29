@@ -57,7 +57,7 @@ public class Encryption {
     }
 
     // we need the same password, SALT and IV to decrypt it
-    private static String decrypt(String message, String password) throws Exception {
+    public static String decrypt(String message, String password) throws Exception {
         byte[] cipherText = fromHexStringToByteArray(message);
 
         // get back the aes key from the same password and SALT
