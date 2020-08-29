@@ -79,7 +79,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
   }
 
   public Collection<Score> getTodayScores() {
-    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
+    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String todayDate = getFormattedDate(new Date());
     String[] whereArgs = { config.getUser(), todayDate };
     return getScores(whereClause, whereArgs);
@@ -119,7 +119,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
 
   public Score getScoreByHour(String date, Integer hour) {
     String[] columns = queryColumns();
-    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ? " + ScoreEntry.COLUMN_NAME_HOUR + " = ?";
+    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ? AND " + ScoreEntry.COLUMN_NAME_HOUR + " = ?";
     String[] whereArgs = { config.getUser(), date, String.valueOf(hour) };
 
     Score score = null;
@@ -167,7 +167,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    */
   public long updateScore(Score score) {
     ContentValues values = getContentValues(score);
-    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ? " + ScoreEntry.COLUMN_NAME_HOUR + " = ?";
+    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ? AND " + ScoreEntry.COLUMN_NAME_HOUR + " = ?";
     String[] whereArgs = { score.getUser(), score.getDate(), String.valueOf(score.getHour()) };
 
     return db.update(
@@ -244,7 +244,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @return number of rows deleted
    */
   public int deleteScores() {
-    String whereClause = "? = ? AND ID <> (SELECT MAX(?) FROM ? WHERE ? = ?)";
+    String whereClause = "? = ? AND ? <> (SELECT MAX(?) FROM ? WHERE ? = ?)";
     String[] whereArgs = {
         ScoreEntry.COLUMN_NAME_USER,
         config.getUser(),
@@ -264,7 +264,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @return number of rows deleted
    */
   public int deleteScoresByDate(Date date) {
-    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
+    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String formattedDate = getFormattedDate(date);
     String[] whereArgs = { config.getUser(), formattedDate };
     return db.delete(ScoreEntry.TABLE_NAME, whereClause, whereArgs);
@@ -276,7 +276,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * @return number of rows deleted
    */
   public int deleteScoresByStringDate(String date) {
-    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
+    String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String[] whereArgs = { config.getUser(), date };
     return db.delete(ScoreEntry.TABLE_NAME, whereClause, whereArgs);
   }
