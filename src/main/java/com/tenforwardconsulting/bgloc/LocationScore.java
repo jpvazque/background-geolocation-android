@@ -123,7 +123,7 @@ public class LocationScore {
             calculateWifiScore();
         }
 
-        public double calculateWifiScore() {
+        public void calculateWifiScore() {
             long max_networks_allowed = Math.round(nroHomeNetworks * X);
             if((nroNetworksAvailable > 0) && (nroNetworksAvailable < max_networks_allowed)){
                 score = (nroNetworksAvailable / max_networks_allowed);
