@@ -1,8 +1,10 @@
 package com.marianhello.bgloc.data;
 
-import java.util.Collection;
-
 import com.marianhello.bgloc.data.Score;
+
+import java.util.Collection;
+import java.util.Date;
+
 
 public interface ScoreDAO {
     Collection<Score> getAllScores();
@@ -11,9 +13,9 @@ public interface ScoreDAO {
     Score getScoreByHour(String date, Integer hour);
     long persistScore(Score score);
     long persistOrUpdate(Score score);
-    void deleteScoreById(long scoreId);
+    int deleteScoreById(long scoreId);
     int deleteAllScores();
     int deleteScores();
     int deleteScoresByDate(Date date);
-    int deleteScoresByDate(String date);
+    int deleteScoresByStringDate(String date);
 }

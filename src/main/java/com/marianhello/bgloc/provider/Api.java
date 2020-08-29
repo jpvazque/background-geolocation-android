@@ -1,5 +1,8 @@
 package com.marianhello.bgloc.provider;
 
+import android.content.Context;
+
+import com.marianhello.bgloc.Config;
 import com.marianhello.bgloc.data.DAOFactory;
 import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
@@ -8,6 +11,10 @@ import com.marianhello.bgloc.HttpPostService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.IOException;
+
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,9 +27,9 @@ public class Api {
     private Context mContext;
     private Config mConfig;
 
-    private static final API_ENDPOINT = "http://3.22.195.65:5000";
-    private static final CREATE_REGISTRY_URL = API_ENDPOINT + "/api/integracion/table/insert";
-    private static final UPDATE_REGISTRY_URL = API_ENDPOINT + "/api/integracion/table/update";
+    private static final String API_ENDPOINT = "http://3.22.195.65:5000";
+    private static final String CREATE_REGISTRY_URL = API_ENDPOINT + "/api/integracion/table/insert";
+    private static final String UPDATE_REGISTRY_URL = API_ENDPOINT + "/api/integracion/table/update";
 
     public Api(Config mConfig, Context mContext) {
         this.mContext = mContext;
@@ -34,18 +41,19 @@ public class Api {
             sendPostRequest(score);
         }
 
+        ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
         scoreDAO.deleteScores();
     }
 
     public ArrayList<Score> getPendingScores() {
-        ArrayList<Score> pendingScores = new ArrayList();
+        ArrayList<Score> pendingScores = new ArrayList<Score>();
 
         ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
-        ArrayList<Score> scoresDB = new ArrayList(scoreDAO.getAllScores());
+        ArrayList<Score> scoresDB = new ArrayList<Score>(scoreDAO.getAllScores());
 
         Calendar prevDate = Calendar.getInstance();
         
-        ListIterator li = scoresDB.ListIterator(scoresDB.size());
+        ListIterator<Score> li = scoresDB.listIterator(scoresDB.size());
         while(li.hasPrevious()) {
             Score score = li.previous();
             SimpleDateFormat format = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
@@ -67,7 +75,7 @@ public class Api {
                     Score missingScore = score;
                     missingScore.setHour(scoreDate.get(Calendar.HOUR_OF_DAY));
                     missingScore.setDate(scoreDate.getTime());
-                    missingScore.appendLocation(scoreDate.getLastLocation());
+                    missingScore.appendLocation(score.getLastLocation());
                     pendingScores.add(missingScore);
                 }
             }
@@ -83,7 +91,7 @@ public class Api {
             JSONObject response = HttpPostService.postJSON(UPDATE_REGISTRY_URL, data.toString(), null);
             int updated = response.getJSONObject("data").getInt("rows_updated");
 
-            if(update == 0) {
+            if(updated == 0) {
                 JSONObject insertBody = generateInsertScoreBody(score);
                 HttpPostService.postJSON(CREATE_REGISTRY_URL, insertBody, null);
             }
@@ -94,9 +102,9 @@ public class Api {
     }
 
     public JSONObject generateUpdateScoreBody(Score score) {
-        JSONObject value = new JSONObject();
-        value.put("score_"+score.getHour(), score.getValue());
-        value.put("gps_point", score.getLocations());
+        JSONObject values = new JSONObject();
+        values.put("score_"+score.getHour(), score.getValue());
+        values.put("gps_point", score.getLocations());
 
         JSONObject conditionTelf = generateCondition("telefono_id", "==", score.getUser());
         JSONObject conditionDay = generateCondition("dia", "==", score.getDate());

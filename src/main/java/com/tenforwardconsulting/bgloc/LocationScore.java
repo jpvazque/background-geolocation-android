@@ -18,6 +18,7 @@ public class LocationScore {
     private Config mConfig;
     private DistanceScore distanceScore;
     private WifiScore wifiScore;
+    private int nroNetworksAvailable;
     private TimeAwayScore timeAwayScore;
     private DensityScore densityScore; 
     private double alpha;
@@ -27,16 +28,16 @@ public class LocationScore {
     private String date;
     private double score;
 
-    LocationScore(Config mConfig, Context mContext) {
-        alpha = beta = theta = 0.33;
-
+    LocationScore(Config mConfig, Context mContext, int nroNetworksAvailable) {
+        this.nroNetworksAvailable = nroNetworksAvailable;
         this.mContext = mContext;
         this.mConfig = mConfig;
+        alpha = beta = theta = 0.33;
     }
 
     public Score calculateAndSaveScore(Location location) { //time given in minutes
         calculatePartialScores(location);
-        score = distanceScore.score * ((alpha * wifiScore.score) + (beta * densityScore.score) + (theta * timeAwayScore.score));
+        score = distanceScore.getScore() * ((alpha * wifiScore.getScore()) + (beta * densityScore.getScore()) + (theta * timeAwayScore.getScore()));
         Score scoreDB = getScoreDB(location);
         saveToDatabase(scoreDB);
         return scoreDB;
@@ -44,8 +45,8 @@ public class LocationScore {
 
     public void calculatePartialScores(Location location) {
         distanceScore = new DistanceScore(mConfig, location);
-        wifiScore = new WifiScore();
-        timeScore = new TimeScore();
+        wifiScore = new WifiScore(mConfig, nroNetworksAvailable);
+        timeAwayScore = new TimeAwayScore();
         densityScore = new DensityScore();
     }
 
@@ -55,19 +56,16 @@ public class LocationScore {
     }
 
     public Score getScoreDB(Location location) {
-        Score scoreDB;
         hour = getHour(location);
         date = getDate(location);
-        
+
         ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
-        Score score = scoreDAO.getScoreByHour(date, hour);
-        if(score == null) {
+        Score scoreDB = scoreDAO.getScoreByHour(date, hour);
+        if(scoreDB == null) {
             scoreDB = new Score();
             scoreDB.setUser(mConfig.getUser());
             scoreDB.setHour(hour);
             scoreDB.setDate(new Date(location.getTime()));
-        }else{
-            scoreDB = score;
         }
         scoreDB.appendLocation(location);
         scoreDB.setValue(score);
@@ -98,69 +96,72 @@ public class LocationScore {
         return calendar.HOUR_OF_DAY;
     }
 
-    public int getscore() {
+    public double getscore() {
         return score;
     }
 
     class WifiScore {
+        private Config mConfig;
         private int nroHomeNetworks;
         private int nroNetworksAvailable;
-        private float X;
-        private int score;
+        private double X;
+        private double score;
 
-        WifiScore(int nroHomeNetworks, int nroNetworksAvailable) {
-            this.nroHomeNetworks = nroHomeNetworks;
+        WifiScore(Config config, int nroNetworksAvailable) {
+            this.mConfig = config;
+            this.nroHomeNetworks = mConfig.getHomeNetworks();
             this.nroNetworksAvailable = nroNetworksAvailable;
             X = 1.5;
             calculateWifiScore();
         }
 
-        WifiScore(int nroNetworksAvailable, float X, int nroHomeNetworks) {
-            this.nroHomeNetworks = nroHomeNetworks;
+        WifiScore(Config config, int nroNetworksAvailable, double X) {
+            this.mConfig = config;
+            this.nroHomeNetworks = mConfig.getHomeNetworks();
             this.nroNetworksAvailable = nroNetworksAvailable;
             this.X = X;
             calculateWifiScore();
         }
 
-        public int calculateWifiScore() {
+        public double calculateWifiScore() {
+            long max_networks_allowed = Math.round(nroHomeNetworks * X);
             if((nroNetworksAvailable > 0) && (nroNetworksAvailable < max_networks_allowed)){
-                int max_networks_allowed = nroHomeNetworks * X;
-                score = (int) (nroNetworksAvailable / max_networks_allowed);
+                score = (nroNetworksAvailable / max_networks_allowed);
             }
             score =1;
         }
 
-        public int getScore() {
+        public double getScore() {
             return score;
         }
     }
 
     class TimeAwayScore {
-        private int score;
+        private double score;
         private int timeAway;
 
-        TimeScore() {
+        TimeAwayScore() {
             score = 1;
             timeAway = 0;
         }
 
-        public int getScore() {
+        public double getScore() {
             return score;
         }
 
         public int getTimeAway() {
-            return time;
+            return timeAway;
         }
     }
 
     class DensityScore {
-        private int score;
+        private double score;
 
         DensityScore(){
             score = 1;
         }
         
-        public int getScore(){
+        public double getScore(){
             return score;
         }
     }

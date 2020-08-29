@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -176,8 +177,7 @@ public class Score implements Parcelable
         }
     }
 
-
-    public void setLocations(JSONArray locations) { this.decryptedLocations = locations}
+    public void setLocations(JSONArray locations) { this.decryptedLocations = locations; }
 
     public JSONArray getLocations() { return decryptedLocations; }
 
@@ -197,17 +197,27 @@ public class Score implements Parcelable
 
     public JSONObject getLastLocation() {
         if(decryptedLocations == null || decryptedLocations.length() == 0) {
-            return null
+            return null;
         }
-        return decryptedLocations.get(decryptedLocations.length() - 1);
+        try {
+            return decryptedLocations.getJSONObject(decryptedLocations.length() - 1);
+        } catch(JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private JSONObject getJSONLocationFromLocation(Location location) {
         JSONObject jsonLocation = new JSONObject();
-        jsonLocation.put("latitude", location.getLatitude());
-        jsonLocation.put("longitude", location.getLongitude());
-        jsonLocation.put("timestamp", location.getTime());
-        return jsonLocation;
+        try {
+            jsonLocation.put("latitude", location.getLatitude());
+            jsonLocation.put("longitude", location.getLongitude());
+            jsonLocation.put("timestamp", location.getTime());
+            return jsonLocation;
+        } catch(JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

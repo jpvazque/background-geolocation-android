@@ -5,18 +5,18 @@ import com.marianhello.bgloc.Config;
 
 public class DistanceScore {
     private Location location;
-    private float am, bm, cm;
-    private float al, bl, cl;
-    private float ah, bh, ch;
-    private float homeLat;
-    private float homeLong;
+    private double am, bm, cm;
+    private double al, bl, cl;
+    private double ah, bh, ch;
+    private double homeLat;
+    private double homeLong;
     private int score;
     private double distance;
 
     DistanceScore(Config mConfig, Location location){
         this.location = location;
-        float homeRadius = mConfig.getHomeRadius();
-        float csRadius = mConfig.csRadius();
+        double homeRadius = mConfig.getHomeRadius();
+        double csRadius = Math.sqrt(mConfig.getCensusArea())/2;
 
         al = -10; 
         bl = 0; 
@@ -31,16 +31,16 @@ public class DistanceScore {
         ch = Integer.MAX_VALUE;
 
         homeLat = mConfig.getHomeLatitude();
-        homeLong = mconfig.getHomeLatitude();
+        homeLong = mConfig.getHomeLatitude();
 
         calculateScore(location);
     }
 
-    public void calculateScore() {
+    public void calculateScore(Location location) {
         double max = 0;
 
-        distance = distance(location.latitude, 
-                            location.longitude,
+        distance = distance(location.getLatitude(), 
+                            location.getLongitude(),
                             homeLat,
                             homeLong);
         score = scoreExposure(distance, max);
@@ -67,7 +67,7 @@ public class DistanceScore {
         return (deg * Math.PI / 180);
     }
 
-    public rad2deg(double rad) {
+    public double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
 

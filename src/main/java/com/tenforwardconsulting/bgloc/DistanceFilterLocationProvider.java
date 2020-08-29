@@ -425,7 +425,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     public void onLocationChanged(Location location) {
         logger.debug("Location change: {} isMoving={}", location.toString(), isMoving);
         setTimeInterval(location);
-        LocationScore locationScore = new LocationScore(mConfig, mContext);
+        LocationScore locationScore = new LocationScore(mConfig, mContext, availableNetworks.length);
         Score score = locationScore.calculateAndSaveScore(location);
 
         Api api = new Api(mConfig, mContext);

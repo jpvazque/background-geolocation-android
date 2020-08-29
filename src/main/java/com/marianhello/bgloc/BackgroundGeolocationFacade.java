@@ -33,7 +33,7 @@ import com.marianhello.bgloc.data.LocationTransform;
 import com.marianhello.bgloc.sync.AccountHelper;
 import com.marianhello.bgloc.sync.NotificationHelper;
 import com.marianhello.bgloc.data.Score;
-import com.marianhello.bgloc.data.ScoreDao;
+import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.sync.SyncService;
 import com.marianhello.logging.DBLogReader;
 import com.marianhello.logging.LogEntry;
@@ -460,7 +460,7 @@ public class BackgroundGeolocationFacade {
     }
 
     public Collection<Score> getScores() {
-        ScoreDao dao = DAOFactory.createScoreDAO(getContext(), mConfig);
+        ScoreDAO dao = DAOFactory.createScoreDAO(getContext(), mConfig);
         return dao.getTodayScores();
     }
 
