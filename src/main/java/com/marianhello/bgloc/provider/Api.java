@@ -102,56 +102,76 @@ public class Api {
     }
 
     public JSONObject generateUpdateScoreBody(Score score) {
-        JSONObject values = new JSONObject();
-        values.put("score_"+score.getHour(), score.getValue());
-        values.put("gps_point", score.getLocations());
+        try {
+            JSONObject values = new JSONObject();
+            values.put("score_"+score.getHour(), score.getValue());
+            values.put("gps_point", score.getLocations());
 
-        JSONObject conditionTelf = generateCondition("telefono_id", "==", score.getUser());
-        JSONObject conditionDay = generateCondition("dia", "==", score.getDate());
+            JSONObject conditionTelf = generateCondition("telefono_id", "==", score.getUser());
+            JSONObject conditionDay = generateCondition("dia", "==", score.getDate());
 
-        JSONArray conditions = generateConditions(conditionTelf, conditionDay);
-        
-        JSONObject data = new JSONObject();
-        data.put("tabla", "integracion_score_diario");
-        data.put("operador", "and");
-        data.put("valores", values);
-        data.put("condiciones", conditions);
+            JSONArray conditions = generateConditions(conditionTelf, conditionDay);
+            
+            JSONObject data = new JSONObject();
+            data.put("tabla", "integracion_score_diario");
+            data.put("operador", "and");
+            data.put("valores", values);
+            data.put("condiciones", conditions);
 
-        return data;
+            return data;
+        }catch(Exception e) {
+            return null;
+            e.printStackTrace();
+        }
     }
 
     public JSONObject generateCondition(String columna, String comparador, String valor) {
-        JSONObject condition = new JSONObject();
-        condition.put("columna", columna);
-        condition.put("comparador", comparador);
-        condition.put("valor", valor);
+        try {
+            JSONObject condition = new JSONObject();
+            condition.put("columna", columna);
+            condition.put("comparador", comparador);
+            condition.put("valor", valor);
 
-        return condition;
+            return condition;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public JSONArray generateConditions(JSONObject... conditions) {
-        JSONArray jsonConditions = new JSONArray();
-        for(int x = 0; x < conditions.length; x++) {
-            jsonConditions.put(conditions[x]);
-        }
+        try{
+            JSONArray jsonConditions = new JSONArray();
+            for(int x = 0; x < conditions.length; x++) {
+                jsonConditions.put(conditions[x]);
+            }
 
-        return jsonConditions;
+            return jsonConditions;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public JSONObject generateInsertScoreBody(Score score){
-        JSONObject values = new JSONObject();
-        values.put("telefono_id", score.getUser());
-        values.put("dia", score.getDate());
-        values.put("score_"+score.getHour(), score.getValue());
-        values.put("gps_point", score.getLocations());
+        try{
+            JSONObject values = new JSONObject();
+            values.put("telefono_id", score.getUser());
+            values.put("dia", score.getDate());
+            values.put("score_"+score.getHour(), score.getValue());
+            values.put("gps_point", score.getLocations());
 
-        JSONArray datos = new JSONArray();
-        datos.put(values);
+            JSONArray datos = new JSONArray();
+            datos.put(values);
 
-        JSONObject data = new JSONObject();
-        data.put("tabla", "integracion_score_diario");
-        data.put("datos", datos);
+            JSONObject data = new JSONObject();
+            data.put("tabla", "integracion_score_diario");
+            data.put("datos", datos);
 
-        return data;
+            return data;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
