@@ -46,7 +46,7 @@ public class LocationScore {
     public void calculatePartialScores(Location location) {
         distanceScore = new DistanceScore(mConfig, location);
         wifiScore = new WifiScore(mConfig, nroNetworksAvailable);
-        timeScore = new TimeAwayScore();
+        timeAwayScore = new TimeAwayScore();
         densityScore = new DensityScore();
     }
 
@@ -56,7 +56,6 @@ public class LocationScore {
     }
 
     public Score getScoreDB(Location location) {
-        Score scoreDB;
         hour = getHour(location);
         date = getDate(location);
 
@@ -125,7 +124,7 @@ public class LocationScore {
         }
 
         public double calculateWifiScore() {
-            int max_networks_allowed = Math.round(nroHomeNetworks * X);
+            long max_networks_allowed = Math.round(nroHomeNetworks * X);
             if((nroNetworksAvailable > 0) && (nroNetworksAvailable < max_networks_allowed)){
                 score = (nroNetworksAvailable / max_networks_allowed);
             }
