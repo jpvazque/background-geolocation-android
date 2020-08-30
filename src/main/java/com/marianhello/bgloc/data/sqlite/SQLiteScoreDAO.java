@@ -136,6 +136,9 @@ public class SQLiteScoreDAO implements ScoreDAO {
       );
       while (cursor.moveToNext()) {
         score = hydrate(cursor);
+        if (!cursor.isLast()) {
+          throw new RuntimeException("Score at " + date + " and " + hour + " is not unique");
+        }
       }
     } finally {
       if (cursor != null) {
@@ -318,6 +321,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
   }
 
   private JSONArray decryptLocations(String locations) {
+    locations = locations == null ? "" : locations;
     try{
         return new JSONArray(Encryption.decrypt(locations, config.getUser()));
     }catch(Exception e) {

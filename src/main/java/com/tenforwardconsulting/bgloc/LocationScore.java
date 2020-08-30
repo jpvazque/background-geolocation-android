@@ -62,7 +62,7 @@ public class LocationScore {
         ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
         Score scoreDB = scoreDAO.getScoreByHour(date, hour);
         if(scoreDB == null) {
-            scoreDB = new Score();
+            scoreDB = Score.getDefault();
             scoreDB.setUser(mConfig.getUser());
             scoreDB.setHour(hour);
             scoreDB.setDate(new Date(location.getTime()));
