@@ -10,6 +10,7 @@ import com.marianhello.bgloc.Config;
 import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
+import com.marianhello.logging.LoggerManager;
 import com.marianhello.utils.Encryption;
 
 import org.json.JSONArray;
@@ -24,11 +25,14 @@ import java.util.Date;
 public class SQLiteScoreDAO implements ScoreDAO {
   private SQLiteDatabase db;
   private Config config;
+  private org.slf4j.Logger logger;
 
   public SQLiteScoreDAO(Context context, Config config) {
     SQLiteOpenHelper helper = SQLiteOpenHelper.getHelper(context);
     this.db = helper.getWritableDatabase();
     this.config = config;
+    this.logger = LoggerManager.getLogger(SQLiteScoreDAO.class);
+    LoggerManager.enableDBLogging();
   }
 
   public SQLiteScoreDAO(SQLiteDatabase db) {
@@ -83,7 +87,11 @@ public class SQLiteScoreDAO implements ScoreDAO {
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
     String todayDate = getFormattedDate(new Date());
     String[] whereArgs = { config.getUser(), todayDate };
-    return getScores(whereClause, whereArgs);
+    Collection<Score> scores = getScores(whereClause, whereArgs);
+    for(Score score: scores) {
+        logger.debug("Getting scores " + score.toString());
+    }
+    return scores;
   }
 
   public Score getScoreById(long id) {
@@ -251,11 +259,11 @@ public class SQLiteScoreDAO implements ScoreDAO {
     StringBuilder query = new StringBuilder();
     query.append("DELETE FROM ").append(ScoreEntry.TABLE_NAME)
     .append(" WHERE ")
-    .append(ScoreEntry.COLUMN_NAME_USER).append(" = ").append(config.getUser())
-    .append(" AND ").append(ScoreEntry._ID).append(" <> ").append("(SELECT MAX(")
+    .append(ScoreEntry.COLUMN_NAME_USER).append(" = '").append(config.getUser())
+    .append("' AND ").append(ScoreEntry._ID).append(" <> ").append("(SELECT MAX(")
     .append(ScoreEntry._ID).append(") FROM ").append(ScoreEntry.TABLE_NAME)
-    .append(" WHERE ").append(ScoreEntry.COLUMN_NAME_USER).append(" = ").append(config.getUser())
-    .append(");");
+    .append(" WHERE ").append(ScoreEntry.COLUMN_NAME_USER).append(" = '").append(config.getUser())
+    .append("');");
 
     try {
         db.execSQL(query.toString());
