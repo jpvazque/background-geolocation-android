@@ -62,7 +62,7 @@ public class Api {
                 scoreDate.setTime(format.parse(score.getDate()));
                 scoreDate.set(Calendar.HOUR_OF_DAY, score.getHour());
             }catch (Exception e) {
-                //None
+                e.printStackTrace();
             }
             prevDate = scoreDate;
 
@@ -96,7 +96,7 @@ public class Api {
             }
 
         } catch(Exception e) {
-            //None
+            e.printStackTrace();
         }
     }
 
