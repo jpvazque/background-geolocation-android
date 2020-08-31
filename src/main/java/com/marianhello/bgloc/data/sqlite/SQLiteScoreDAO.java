@@ -3,6 +3,7 @@ package com.marianhello.bgloc.data.sqlite;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.marianhello.bgloc.Config;
@@ -246,19 +247,21 @@ public class SQLiteScoreDAO implements ScoreDAO {
    * Query: DELETE FROM SCORE WHERE USER = CONFIG.USER AND ID <> (SELECT MAX(ID) FROM SCORE WHERE USER = CONFIG.USER)
    * @return number of rows deleted
    */
-  public int deleteScores() {
-    String whereClause = "? = ? AND ? <> (SELECT MAX(?) FROM ? WHERE ? = ?)";
-    String[] whereArgs = {
-        ScoreEntry.COLUMN_NAME_USER,
-        config.getUser(),
-        ScoreEntry._ID,
-        ScoreEntry._ID,
-        ScoreEntry.TABLE_NAME,
-        ScoreEntry.COLUMN_NAME_USER,
-        config.getUser()
-    };
+  public void deleteScores() {
+    StringBuilder query = new StringBuilder();
+    query.append("DELETE FROM ").append(ScoreEntry.TABLE_NAME)
+    .append(" WHERE ")
+    .append(ScoreEntry.COLUMN_NAME_USER).append(" = ").append(config.getUser())
+    .append(" AND ").append(ScoreEntry._ID).append(" <> ").append("(SELECT MAX(")
+    .append(ScoreEntry._ID).append(") FROM ").append(ScoreEntry.TABLE_NAME)
+    .append(" WHERE ").append(ScoreEntry.COLUMN_NAME_USER).append(" = ").append(config.getUser())
+    .append(");");
 
-    return db.delete(ScoreEntry.TABLE_NAME, whereClause, whereArgs);
+    try {
+        db.execSQL(query.toString());
+    } catch(SQLException e) {
+        e.printStackTrace();
+    }
   }
 
   /**
