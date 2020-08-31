@@ -65,7 +65,7 @@ public class LocationScore {
             scoreDB = Score.getDefault();
             scoreDB.setUser(mConfig.getUser());
             scoreDB.setHour(hour);
-            scoreDB.setDate(new Date(location.getTime()));
+            scoreDB.setDate(date);
         }
         scoreDB.appendLocation(location);
         scoreDB.setValue(score);
@@ -84,6 +84,7 @@ public class LocationScore {
         try{
             return formatter.format(calendar.getTime());
         }catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -93,7 +94,7 @@ public class LocationScore {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
-        return calendar.HOUR_OF_DAY;
+        return calendar.get(calendar.HOUR_OF_DAY);
     }
 
     public double getscore() {

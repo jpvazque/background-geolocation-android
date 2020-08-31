@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
@@ -85,7 +86,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
 
   public Collection<Score> getTodayScores() {
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
-    String todayDate = getFormattedDate(new Date());
+    String todayDate = getNormalizedDateString(new Date());
     String[] whereArgs = { config.getUser(), todayDate };
     Collection<Score> scores = getScores(whereClause, whereArgs);
     for(Score score: scores) {
@@ -279,7 +280,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
    */
   public int deleteScoresByDate(Date date) {
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ?";
-    String formattedDate = getFormattedDate(date);
+    String formattedDate = getNormalizedDateString(date);
     String[] whereArgs = { config.getUser(), formattedDate };
     return db.delete(ScoreEntry.TABLE_NAME, whereClause, whereArgs);
   }
@@ -362,10 +363,15 @@ public class SQLiteScoreDAO implements ScoreDAO {
     return columns;
   }
 
-  private String getFormattedDate(Date date) {
+  private String getNormalizedDateString(Date date) {
     SimpleDateFormat formatter = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    calendar.set(Calendar.HOUR_OF_DAY, 0);
+    calendar.set(Calendar.MINUTE, 0);
+    calendar.set(Calendar.SECOND, 0);
     try {
-        return formatter.format(date);
+        return formatter.format(calendar.getTime());
     } catch(IllegalArgumentException e) {
         e.printStackTrace();
         return null;
