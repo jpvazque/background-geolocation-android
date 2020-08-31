@@ -310,9 +310,12 @@ public class SQLiteScoreDAO implements ScoreDAO {
     return values;
   }
 
+  // In case encryption becomes needed again, uncomment return inside of try block
+  // Encryption was "disabled" after getting errors when generating the decryption key
   private String encryptLocations(JSONArray locations) {
     try{
-        return Encryption.encrypt(locations.toString(), config.getUser());
+        // return Encryption.encrypt(locations.toString(), config.getUser());
+        return locations.toString();
     }catch(Exception e) {
         e.printStackTrace();
         return null;
@@ -320,10 +323,13 @@ public class SQLiteScoreDAO implements ScoreDAO {
       
   }
 
+  // In case decryption becomes needed again, uncomment return inside of try block
+  // Encryption was "disabled" after getting errors when generating the decryption key
   private JSONArray decryptLocations(String locations) {
     locations = locations == null ? "" : locations;
     try{
-        return new JSONArray(Encryption.decrypt(locations, config.getUser()));
+        // return new JSONArray(Encryption.decrypt(locations, config.getUser()));
+        return new JSONArray(locations);
     }catch(Exception e) {
         e.printStackTrace();
         return null;
