@@ -90,6 +90,8 @@ public class HttpPostService {
             os = new OutputStreamWriter(conn.getOutputStream());
             os.write(body);
 
+        }catch(Exception e) {
+            e.printStackTrace();
         } finally {
             if (os != null) {
                 os.flush();

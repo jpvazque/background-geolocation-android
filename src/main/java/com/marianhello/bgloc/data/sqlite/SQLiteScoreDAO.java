@@ -264,8 +264,8 @@ public class SQLiteScoreDAO implements ScoreDAO {
     query.append("DELETE FROM ").append(ScoreEntry.TABLE_NAME)
     .append(" WHERE ")
     .append(ScoreEntry.COLUMN_NAME_USER).append(" = '").append(config.getUser())
-    .append("' AND ").append(ScoreEntry.COLUMN_NAME_DATE).append(" <> ").append(stringCurrentDate)
-    .append(" AND ").append(ScoreEntry._ID).append(" <> ").append("(SELECT MAX(")
+    .append("' AND ").append(ScoreEntry.COLUMN_NAME_DATE).append(" <> '").append(stringCurrentDate)
+    .append("' AND ").append(ScoreEntry._ID).append(" <> ").append("(SELECT MAX(")
     .append(ScoreEntry._ID).append(") FROM ").append(ScoreEntry.TABLE_NAME)
     .append(" WHERE ").append(ScoreEntry.COLUMN_NAME_USER).append(" = '").append(config.getUser())
     .append("');");
