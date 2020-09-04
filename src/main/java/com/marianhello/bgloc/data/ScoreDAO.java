@@ -18,4 +18,5 @@ public interface ScoreDAO {
     void deleteScores();
     int deleteScoresByDate(Date date);
     int deleteScoresByStringDate(String date);
+    int setPendingStateFalse(Score score);
 }
