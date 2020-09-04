@@ -29,7 +29,7 @@ public class HttpPostService {
 
     private String mUrl;
     private HttpURLConnection mHttpURLConnection;
-    private org.slf4j.Logger logger;
+    private static org.slf4j.Logger logger = LoggerManager.getLogger(HttpPostService.class);
     
 
     public interface UploadingProgressListener {
@@ -38,13 +38,11 @@ public class HttpPostService {
 
     public HttpPostService(String url) {
         mUrl = url;
-        this.logger = LoggerManager.getLogger(HttpPostService.class);
         LoggerManager.enableDBLogging();
     }
 
     public HttpPostService(final HttpURLConnection httpURLConnection) {
         mHttpURLConnection = httpURLConnection;
-        this.logger = LoggerManager.getLogger(HttpPostService.class);
         LoggerManager.enableDBLogging();
     }
 
@@ -81,20 +79,20 @@ public class HttpPostService {
         if (headers == null) {
             headers = new HashMap();
         }
-        
         HttpURLConnection conn = this.openConnection();
-        conn.setDoOutput(true);
-        conn.setFixedLengthStreamingMode(body.length());
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-        Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, String> pair = it.next();
-            conn.setRequestProperty(pair.getKey(), pair.getValue());
-        }
-
         OutputStreamWriter os = null;
+
         try {
+            conn.setDoOutput(true);
+            conn.setFixedLengthStreamingMode(body.length());
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> pair = it.next();
+                conn.setRequestProperty(pair.getKey(), pair.getValue());
+            }
+
             os = new OutputStreamWriter(conn.getOutputStream());
             os.write(body);
 
@@ -114,17 +112,18 @@ public class HttpPostService {
     public static JSONObject postJSON(String url, String body, Map headers) throws IOException {
         HttpPostService service = new HttpPostService(url);
         HttpURLConnection conn = service.getPostConnection(body, headers);
-
-        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-        StringBuilder sb = new StringBuilder();
-        String output;
-        while ((output = br.readLine()) != null) {
-            sb.append(output);
-        }
         try{
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            StringBuilder sb = new StringBuilder();
+            String output;
+            while ((output = br.readLine()) != null) {
+                sb.append(output);
+            }
+        
             return new JSONObject(sb.toString());
         }catch(Exception e) {
             e.printStackTrace();
+            logger.debug("ERROR postJSON class line 115 " + conn.getResponseCode());
             return null;
         }
     }
