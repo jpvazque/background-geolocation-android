@@ -1,5 +1,6 @@
 package com.marianhello.bgloc.provider;
 
+import android.os.AsyncTask;
 import android.content.Context;
 
 import com.marianhello.bgloc.Config;
@@ -8,6 +9,7 @@ import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
 import com.marianhello.bgloc.HttpPostService;
+import com.marianhello.logging.LoggerManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -87,12 +89,12 @@ public class Api {
     public void sendPostRequest(Score score){        
         try {
             JSONObject data = generateUpdateScoreBody(score);
-            JSONObject response = HttpPostService.postJSON(UPDATE_REGISTRY_URL, data.toString(), null);
+            JSONObject response = new CKANConnectionTask().execute(UPDATE_REGISTRY_URL, data.toString()).get();
             int updated = response.getJSONObject("data").getInt("rows_updated");
 
             if(updated == 0) {
                 JSONObject insertBody = generateInsertScoreBody(score);
-                HttpPostService.postJSON(CREATE_REGISTRY_URL, insertBody, null);
+                new CKANConnectionTask().execute(CREATE_REGISTRY_URL, insertBody.toString());
             }
 
         } catch(Exception e) {
@@ -104,7 +106,7 @@ public class Api {
         try {
             JSONObject values = new JSONObject();
             values.put("score_"+score.getHour(), score.getValue());
-            values.put("gps_point", score.getLocations());
+            values.put("gps_point", score.getLocations().toString());
 
             JSONObject conditionTelf = generateCondition("telefono_id", "==", score.getUser());
             JSONObject conditionDay = generateCondition("dia", "==", score.getDate());
@@ -158,7 +160,7 @@ public class Api {
             values.put("telefono_id", score.getUser());
             values.put("dia", score.getDate());
             values.put("score_"+score.getHour(), score.getValue());
-            values.put("gps_point", score.getLocations());
+            values.put("gps_point", score.getLocations().toString());
 
             JSONArray datos = new JSONArray();
             datos.put(values);
@@ -171,6 +173,33 @@ public class Api {
         }catch(Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    class CKANConnectionTask extends AsyncTask<String, Void, JSONObject> {
+        private Exception exception;
+        private org.slf4j.Logger logger;
+
+        public CKANConnectionTask() {
+            super();
+            this.logger = LoggerManager.getLogger(CKANConnectionTask.class);
+            LoggerManager.enableDBLogging();
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... urls) {
+            try {
+                JSONObject response = HttpPostService.postJSON(urls[0], urls[1], null);
+                return response;
+            } catch (Exception e) {
+                this.exception = e;
+                this.exception.printStackTrace();
+                return null;
+            }
+        }
+
+        protected void onPostExecute(JSONObject response) {
+            logger.debug("CKAN_RESPONSE " + response.toString());
         }
     }
 }
