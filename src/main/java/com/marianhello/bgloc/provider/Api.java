@@ -71,10 +71,10 @@ public class Api {
             }
             prevDate = scoreDate;
 
-            long diffDates = prevDate.getTime().getTime() - scoreDate.getTime().getTime();
+            long diffDates = prevDate.getTime().getTime() - scoreDate.getTime().getTime(); 
             long diffHours = diffDates / (60 * 60 * 1000) % 24;
 
-            if(diffHours > 1) {
+            if(diffHours > 1) { //Check if there are missing hours to sent them with the last recorded score
                 for(int x = 1; x < diffHours; x++) {
                     scoreDate.add(Calendar.HOUR, 1);
                     Score missingScore = score;
@@ -85,7 +85,7 @@ public class Api {
                 }
             }
 
-            if(score.getPending() == 1) {
+            if(score.getPending() == 1 && diffHours == 1) { //Check the if there is a pending hour to send it to ckan
                 pendingScores.add(score);
                 break;
             }
