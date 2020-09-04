@@ -20,7 +20,10 @@ public final class SQLiteScoreContract {
         public static final String COLUMN_NAME_HOUR = "hour";
         public static final String COLUMN_NAME_DATE = "date";
         public static final String COLUMN_NAME_LOCATIONS = "locations";
+        public static final String COLUMN_NAME_PENDING = "pending";
         public static final String DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
+        public static final Integer PENDING_TRUE = 1;
+        public static final Integer PENDING_FALSE = 0;
 
         public static final String SQL_CREATE_SCORE_TABLE =
                 "CREATE TABLE " + ScoreEntry.TABLE_NAME + " (" +
@@ -31,7 +34,8 @@ public final class SQLiteScoreContract {
                         ScoreEntry.COLUMN_NAME_TIME_AWAY + INTEGER_TYPE + COMMA_SEP +
                         ScoreEntry.COLUMN_NAME_HOUR + INTEGER_TYPE + COMMA_SEP +
                         ScoreEntry.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
-                        ScoreEntry.COLUMN_NAME_LOCATIONS + TEXT_TYPE +
+                        ScoreEntry.COLUMN_NAME_LOCATIONS + TEXT_TYPE + COMMA_SEP +
+                        ScoreEntry.COLUMN_NAME_PENDING + INTEGER_TYPE +
                         " )";
 
         public static final String SQL_DROP_SCORE_TABLE =

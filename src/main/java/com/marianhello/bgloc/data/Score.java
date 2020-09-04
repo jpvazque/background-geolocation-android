@@ -53,6 +53,7 @@ public class Score implements Parcelable
     private Integer hour;
     private String date;
     private JSONArray decryptedLocations;
+    private Integer pending;
 
     public Score () {
     }
@@ -66,6 +67,7 @@ public class Score implements Parcelable
         this.hour = score.hour;
         this.date = score.date;
         this.decryptedLocations = score.decryptedLocations;
+        this.pending = score.pending;
     }
 
     private Score(Parcel in) {
@@ -75,6 +77,7 @@ public class Score implements Parcelable
         setTimeAway(in.readInt());
         setHour(in.readInt());
         setDate(in.readString());
+        setPending(in.readInt());
     }
 
     public static Score getDefault() {
@@ -86,6 +89,7 @@ public class Score implements Parcelable
         score.hour = 0;
         score.date = "";
         score.decryptedLocations = new JSONArray();
+        score.pending = ScoreEntry.PENDING_TRUE;
 
         return score;
     }
@@ -103,6 +107,7 @@ public class Score implements Parcelable
         out.writeInt(getTimeAway());
         out.writeInt(getHour());
         out.writeString(getDate());
+        out.writePending(getPending());
     }
 
     public static final Parcelable.Creator<Score> CREATOR
@@ -219,6 +224,12 @@ public class Score implements Parcelable
             return null;
         }
     }
+
+    public boolean hasPending() { return pending != null; }
+
+    public Integer getPending() { return pending; }
+
+    public void setPending(Integer pending) { this.pending = pending; }
 
     @Override
     public String toString () {

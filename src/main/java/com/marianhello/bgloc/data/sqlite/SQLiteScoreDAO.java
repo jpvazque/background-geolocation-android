@@ -309,6 +309,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     s.setHour(c.getInt(c.getColumnIndex(ScoreEntry.COLUMN_NAME_HOUR)));
     s.setDate(c.getString(c.getColumnIndex(ScoreEntry.COLUMN_NAME_DATE)));
     s.setLocations(decryptLocations(c.getString(c.getColumnIndex(ScoreEntry.COLUMN_NAME_LOCATIONS))));
+    s.setPending(c.getInt(c.getColumnIndex(ScoreEntry.COLUMN_NAME_PENDING)));
 
     return s;
   }
@@ -322,6 +323,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     values.put(ScoreEntry.COLUMN_NAME_HOUR, s.getHour());
     values.put(ScoreEntry.COLUMN_NAME_DATE, s.getDate());
     values.put(ScoreEntry.COLUMN_NAME_LOCATIONS, encryptLocations(s.getLocations()));
+    values.put(ScoreEntry.COLUMN_NAME_PENDING, s.getPending());
 
     return values;
   }
@@ -361,7 +363,8 @@ public class SQLiteScoreDAO implements ScoreDAO {
         ScoreEntry.COLUMN_NAME_TIME_AWAY,
         ScoreEntry.COLUMN_NAME_HOUR,
         ScoreEntry.COLUMN_NAME_DATE,
-        ScoreEntry.COLUMN_NAME_LOCATIONS
+        ScoreEntry.COLUMN_NAME_LOCATIONS,
+        ScoreEntry.COLUMN_NAME_PENDING,
     };
 
     return columns;
