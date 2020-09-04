@@ -107,7 +107,7 @@ public class Score implements Parcelable
         out.writeInt(getTimeAway());
         out.writeInt(getHour());
         out.writeString(getDate());
-        out.writePending(getPending());
+        out.writeInt(getPending());
     }
 
     public static final Parcelable.Creator<Score> CREATOR

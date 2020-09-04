@@ -399,7 +399,7 @@ public class SQLiteScoreDAO implements ScoreDAO {
     ContentValues values = new ContentValues();
     values.put(ScoreEntry.COLUMN_NAME_PENDING, ScoreEntry.PENDING_FALSE);
     String whereClause = ScoreEntry.COLUMN_NAME_USER + " = ? AND " + ScoreEntry.COLUMN_NAME_DATE + " = ? AND " + ScoreEntry.COLUMN_NAME_HOUR + " = ?";
-    String[] whereArgs = { config.getUser(), score.getDate(), score.getHour() };
+    String[] whereArgs = { config.getUser(), score.getDate(), String.valueOf(score.getHour()) };
 
     return db.update(ScoreEntry.TABLE_NAME, values, whereClause, whereArgs);
   }

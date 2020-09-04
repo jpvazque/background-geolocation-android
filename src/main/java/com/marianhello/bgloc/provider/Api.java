@@ -39,11 +39,13 @@ public class Api {
     }
 
     public void sendPendingScoresToServer(ArrayList<Score> scores) {
+        ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
+
         for(Score score: scores) {
             sendPostRequest(score);
+            scoreDAO.setPendingStateFalse(score);
         }
 
-        ScoreDAO scoreDAO = DAOFactory.createScoreDAO(mContext, mConfig);
         scoreDAO.deleteScores();
     }
 
@@ -56,6 +58,7 @@ public class Api {
         Calendar prevDate = Calendar.getInstance();
         
         ListIterator<Score> li = scoresDB.listIterator(scoresDB.size());
+
         while(li.hasPrevious()) {
             Score score = li.previous();
             SimpleDateFormat format = new SimpleDateFormat(ScoreEntry.DATE_FORMAT);
@@ -81,7 +84,11 @@ public class Api {
                     pendingScores.add(missingScore);
                 }
             }
-            pendingScores.add(score);
+
+            if(score.getPending() == 1) {
+                pendingScores.add(score);
+                break;
+            }
         }
         return pendingScores;
     }
