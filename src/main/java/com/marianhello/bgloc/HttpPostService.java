@@ -2,6 +2,8 @@ package com.marianhello.bgloc;
 
 import android.os.Build;
 
+import com.marianhello.logging.LoggerManager;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,6 +29,8 @@ public class HttpPostService {
 
     private String mUrl;
     private HttpURLConnection mHttpURLConnection;
+    private org.slf4j.Logger logger;
+    
 
     public interface UploadingProgressListener {
         void onProgress(int progress);
@@ -34,10 +38,14 @@ public class HttpPostService {
 
     public HttpPostService(String url) {
         mUrl = url;
+        this.logger = LoggerManager.getLogger(HttpPostService.class);
+        LoggerManager.enableDBLogging();
     }
 
     public HttpPostService(final HttpURLConnection httpURLConnection) {
         mHttpURLConnection = httpURLConnection;
+        this.logger = LoggerManager.getLogger(HttpPostService.class);
+        LoggerManager.enableDBLogging();
     }
 
     private HttpURLConnection openConnection() throws IOException {
@@ -78,8 +86,7 @@ public class HttpPostService {
         conn.setDoOutput(true);
         conn.setFixedLengthStreamingMode(body.length());
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Content-Type", "application/json");
         Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, String> pair = it.next();
@@ -93,6 +100,7 @@ public class HttpPostService {
 
         }catch(Exception e) {
             e.printStackTrace();
+            logger.debug("ERROR PAULETTE: " + conn.getResponseCode());
         } finally {
             if (os != null) {
                 os.flush();
