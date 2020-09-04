@@ -73,12 +73,13 @@ public class HttpPostService {
         if (headers == null) {
             headers = new HashMap();
         }
-
+        
         HttpURLConnection conn = this.openConnection();
         conn.setDoOutput(true);
         conn.setFixedLengthStreamingMode(body.length());
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setRequestProperty("Accept", "application/json");
         Iterator<Map.Entry<String, String>> it = headers.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, String> pair = it.next();
