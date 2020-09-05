@@ -77,9 +77,10 @@ public class Api {
             if(diffHours > 1) { //Check if there are missing hours to sent them with the last recorded score
                 for(int x = 1; x < diffHours; x++) {
                     scoreDate.add(Calendar.HOUR, 1);
-                    Score missingScore = score;
+                    Score missingScore = new Score(score);
                     missingScore.setHour(scoreDate.get(Calendar.HOUR_OF_DAY));
                     missingScore.setDate(scoreDate.getTime());
+                    missingScore.setLocations(null);
                     missingScore.appendLocation(score.getLastLocation());
                     pendingScores.add(missingScore);
                 }
