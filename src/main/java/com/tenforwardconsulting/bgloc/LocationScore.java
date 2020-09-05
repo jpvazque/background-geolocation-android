@@ -8,6 +8,7 @@ import com.marianhello.bgloc.data.DAOFactory;
 import com.marianhello.bgloc.data.Score;
 import com.marianhello.bgloc.data.ScoreDAO;
 import com.marianhello.bgloc.data.sqlite.SQLiteScoreContract.ScoreEntry;
+import com.marianhello.logging.LoggerManager;
 
 import java.util.Date;
 import java.util.Calendar;
@@ -27,19 +28,28 @@ public class LocationScore {
     private int hour;
     private String date;
     private double score;
+    private org.slf4j.Logger logger = LoggerManager.getLogger(LocationScore.class);
 
     LocationScore(Config mConfig, Context mContext, int nroNetworksAvailable) {
         this.nroNetworksAvailable = nroNetworksAvailable;
         this.mContext = mContext;
         this.mConfig = mConfig;
         alpha = beta = theta = 0.33;
+        LoggerManager.enableDBLogging();
     }
 
     public Score calculateAndSaveScore(Location location) { //time given in minutes
         calculatePartialScores(location);
-        score = distanceScore.getScore() * ((alpha * wifiScore.getScore()) + (beta * densityScore.getScore()) + (theta * timeAwayScore.getScore()));
+        double wifi = (alpha * wifiScore.getScore());
+        double density = (beta * densityScore.getScore());
+        double timeAway = (theta * timeAwayScore.getScore());
+        score = distanceScore.getScore() * (wifi + density + timeAway);
         Score scoreDB = getScoreDB(location);
         saveToDatabase(scoreDB);
+        logger.debug("PAU LOCSCORE -> " + String.valueOf(scoreDB));
+        logger.debug("PAU wifiSCORE: " + String.valueOf(wifi));
+        logger.debug("PAU TIMEAWAYSOCRE: " + String.valueOf(timeAway));
+        logger.debug("PAU densitySCORE: " + String.valueOf(density));
         return scoreDB;
     }
 

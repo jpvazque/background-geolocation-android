@@ -2,6 +2,7 @@ package com.tenforwardconsulting.bgloc;
 
 import android.location.Location;
 import com.marianhello.bgloc.Config;
+import com.marianhello.logging.LoggerManager;
 
 public class DistanceScore {
     private Location location;
@@ -12,8 +13,10 @@ public class DistanceScore {
     private double homeLong;
     private int score;
     private double distance;
+    private org.slf4j.Logger logger = LoggerManager.getLogger(DistanceScore.class);
 
     DistanceScore(Config mConfig, Location location){
+        LoggerManager.enableDBLogging();
         this.location = location;
         double homeRadius = mConfig.getHomeRadius();
         double csRadius = Math.sqrt(mConfig.getCensusArea())/2;
@@ -31,19 +34,21 @@ public class DistanceScore {
         ch = Integer.MAX_VALUE;
 
         homeLat = mConfig.getHomeLatitude();
-        homeLong = mConfig.getHomeLatitude();
+        homeLong = mConfig.getHomeLongitude();
 
         calculateScore(location);
     }
 
     public void calculateScore(Location location) {
-        double max = 0;
+        distance = distance(location.getLatitude(), location.getLongitude(), homeLat, homeLong);
 
-        distance = distance(location.getLatitude(), 
-                            location.getLongitude(),
-                            homeLat,
-                            homeLong);
-        score = scoreExposure(distance, max);
+        logger.debug("PAU LOCLAT: " + String.valueOf(location.getLatitude()));
+        logger.debug("PAU LOCLON: " + String.valueOf(location.getLongitude()));
+        logger.debug("PAU HOMELAT: " + String.valueOf(homeLat));
+        logger.debug("PAU HOMELON: " + String.valueOf(homeLong));
+
+        score = scoreExposure(distance);
+        logger.debug("PAU SCOREDISTANCE: " + String.valueOf(score));
     }
 
     public double distance(double lat1, double lon1,
@@ -60,6 +65,8 @@ public class DistanceScore {
             dist = dist * 60 * 1.1515;
             dist = dist * 1.609344;
         }
+
+        logger.debug("PAU DISTANCE: " + String.valueOf(dist*1000));
         return dist*1000;
     }
 
@@ -71,32 +78,39 @@ public class DistanceScore {
         return (rad * 180 / Math.PI);
     }
 
-    public double trimf(double x, double a, double b, double c) { // menor que a -> cero, b posicion de pico, mayor que c ->cero
-        return (Math.max(Math.min((x-a)/(b-a), (c-x)/(c-b)), 0));
+    public double trimf(double distance, double a, double b, double c) { // menor que a -> cero, b posicion de pico, mayor que c ->cero
+        return (Math.max(Math.min((distance-a)/(b-a), (c-distance)/(c-b)), 0));
     }
 
-    public double lowExposure(double x) {
-      return (trimf(x, al, bl, cl));
+    public double lowExposure(double distance) {
+        double result = trimf(distance, al, bl, cl);
+        logger.debug("PAU LOWEXPOSURE: " + String.valueOf(result));
+        return (result);
     }
     
-    public double mediumExposure(double x){
-      return (trimf(x, am, bm, cm));
+    public double mediumExposure(double distance){
+        double result = trimf(distance, am, bm, cm);
+        logger.debug("PAU MEDIUMEXPOSURE: " + String.valueOf(result));
+        return (result);
     }
 
-    public double highExposure(double x) {
-      return (trimf(x, ah, bh, ch));
+    public double highExposure(double distance) {
+        double result = trimf(distance, ah, bh, ch);
+        logger.debug("PAU HIGHEXPOSURE: " + String.valueOf(result));
+        return (result);
     }
 
-    public int scoreExposure(double x, double max) {
-        double low = lowExposure(x);
-        double mid = mediumExposure(x);
-        double high = highExposure(x);
+    public int scoreExposure(double distance) {
+        double low = lowExposure(distance);
+        double mid = mediumExposure(distance);
+        double high = highExposure(distance);
 
-        max = Math.max(high, Math.max(mid, low));
+        double max = Math.max(high, Math.max(mid, low));
         
         if(max == low)	return (1);
         if(max == mid)	return (2);
         if(max == high)	return (3);
+
         return 0;
     }
 
