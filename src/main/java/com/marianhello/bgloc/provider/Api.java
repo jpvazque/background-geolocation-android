@@ -69,29 +69,45 @@ public class Api {
             }catch (Exception e) {
                 e.printStackTrace();
             }
-            prevDate = scoreDate;
 
             long diffDates = prevDate.getTime().getTime() - scoreDate.getTime().getTime(); 
-            long diffHours = diffDates / (60 * 60 * 1000) % 24;
+            long diffHours = diffDates / (60 * 60 * 1000);
+            prevDate.setTime(scoreDate.getTime()); // Update prevDate
 
+            if(diffHours == 1) {
+                if(score.getPending() == ScoreEntry.PENDING_TRUE){
+                    pendingScores.add(score);
+                }
+                break;
+            }
             if(diffHours > 1) { //Check if there are missing hours to sent them with the last recorded score
+                Score missingScore = new Score(score);
                 for(int x = 1; x < diffHours; x++) {
                     scoreDate.add(Calendar.HOUR, 1);
-                    Score missingScore = new Score(score);
                     missingScore.setHour(scoreDate.get(Calendar.HOUR_OF_DAY));
                     missingScore.setDate(scoreDate.getTime());
-                    missingScore.setLocations(null);
-                    missingScore.appendLocation(score.getLastLocation());
+                    int missingScoreDayOfYear = scoreDate.get(Calendar.DAY_OF_YEAR);
+                    int prevDayOfYear = prevDate.get(Calendar.DAY_OF_YEAR);
+                    JSONObject lastLocationCopy = getLocationCopy(missingScore.getLastLocation());
+                    if(prevDayOfYear != missingScoreDayOfYear) {
+                        missingScore.setLocations(null);
+                    }
+                    missingScore.appendLocation(lastLocationCopy);
                     pendingScores.add(missingScore);
+                    missingScore = new Score(missingScore);
                 }
-            }
-
-            if(score.getPending() == 1 && diffHours == 1) { //Check the if there is a pending hour to send it to ckan
-                pendingScores.add(score);
-                break;
             }
         }
         return pendingScores;
+    }
+
+    private JSONObject getLocationCopy(JSONObject location){
+        JSONObject locationCopy = new JSONObject();
+        locationCopy.put("latitude", location.getLong("latitude"));
+        locationCopy.put("longitude", location.getLong("longitude"));
+        long newTimestamp = location.getLong("timestamp") + (1000 * 60 * 60);
+        locationCopy.put("timestamp", newTimestamp);
+        return locationCopy;
     }
 
     public void sendPostRequest(Score score){        
