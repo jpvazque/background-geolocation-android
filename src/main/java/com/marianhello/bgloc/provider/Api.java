@@ -12,6 +12,7 @@ import com.marianhello.bgloc.HttpPostService;
 import com.marianhello.logging.LoggerManager;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -103,11 +104,16 @@ public class Api {
 
     private JSONObject getLocationCopy(JSONObject location){
         JSONObject locationCopy = new JSONObject();
-        locationCopy.put("latitude", location.getLong("latitude"));
-        locationCopy.put("longitude", location.getLong("longitude"));
-        long newTimestamp = location.getLong("timestamp") + (1000 * 60 * 60);
-        locationCopy.put("timestamp", newTimestamp);
-        return locationCopy;
+        try {
+            locationCopy.put("latitude", location.getLong("latitude"));
+            locationCopy.put("longitude", location.getLong("longitude"));
+            long newTimestamp = location.getLong("timestamp") + (1000 * 60 * 60);
+            locationCopy.put("timestamp", newTimestamp);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        } finally {
+            return locationCopy;
+        }
     }
 
     public void sendPostRequest(Score score){        

@@ -96,19 +96,29 @@ public class Score implements Parcelable
 
     private JSONArray copyLocations(JSONArray locations) {
         JSONArray newLocations = new JSONArray();
-        for(int i = 0; i < locations.length(); i++) {
-            JSONObject location = locations.getJSONObject(i);
-            newLocations.put(copyLocation(location));
+        try {
+            for(int i = 0; i < locations.length(); i++) {
+                JSONObject location = locations.getJSONObject(i);
+                newLocations.put(copyLocation(location));
+            }
+        } catch(JSONException e) {
+            e.printStackTrace();
+        } finally {
+            return newLocations;
         }
-        return newLocations;
     }
 
     private JSONObject copyLocation(JSONObject location){
         JSONObject locationCopy = new JSONObject();
-        locationCopy.put("latitude", location.getLong("latitude"));
-        locationCopy.put("longitude", location.getLong("longitude"));
-        locationCopy.put("timestamp", location.getLong("timestamp"));
-        return locationCopy;
+        try {
+            locationCopy.put("latitude", location.getLong("latitude"));
+            locationCopy.put("longitude", location.getLong("longitude"));
+            locationCopy.put("timestamp", location.getLong("timestamp"));
+        } catch(JSONException e) {
+            e.printStackTrace();
+        } finally {
+            return locationCopy;
+        }
     }
 
     @Override
