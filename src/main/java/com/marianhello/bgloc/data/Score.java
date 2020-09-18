@@ -66,7 +66,7 @@ public class Score implements Parcelable
         this.timeAway = score.timeAway;
         this.hour = score.hour;
         this.date = score.date;
-        this.decryptedLocations = score.decryptedLocations;
+        this.decryptedLocations = copyLocations(score.decryptedLocations);
         this.pending = score.pending;
     }
 
@@ -92,6 +92,23 @@ public class Score implements Parcelable
         score.pending = ScoreEntry.PENDING_TRUE;
 
         return score;
+    }
+
+    private JSONArray copyLocations(JSONArray locations) {
+        JSONArray newLocations = new JSONArray();
+        for(int i = 0; i < locations.length(); i++) {
+            JSONObject location = locations.getJSONObject(i);
+            newLocations.put(copyLocation(location));
+        }
+        return newLocations;
+    }
+
+    private JSONObject copyLocation(JSONObject location){
+        JSONObject locationCopy = new JSONObject();
+        locationCopy.put("latitude", location.getLong("latitude"));
+        locationCopy.put("longitude", location.getLong("longitude"));
+        locationCopy.put("timestamp", location.getLong("timestamp"));
+        return locationCopy;
     }
 
     @Override
