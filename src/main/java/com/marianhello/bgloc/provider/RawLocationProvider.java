@@ -116,9 +116,9 @@ public class RawLocationProvider extends AbstractLocationProvider implements Loc
         //     return Criteria.ACCURACY_LOW;
         // }
         // TESTING SHORTER ACCURACY RANGE
-        if (accuracy >= 100) {
-            return Criteria.ACCURACY_MEDIUM;
-        }
+        // if (accuracy >= 100) {
+        //     return Criteria.ACCURACY_MEDIUM;
+        // }
         if (accuracy >= 10) {
             return Criteria.ACCURACY_HIGH;
         }
@@ -126,7 +126,7 @@ public class RawLocationProvider extends AbstractLocationProvider implements Loc
             return Criteria.ACCURACY_HIGH;
         }
 
-        return Criteria.ACCURACY_MEDIUM;
+        return Criteria.ACCURACY_HIGH;
     }
 
     @Override

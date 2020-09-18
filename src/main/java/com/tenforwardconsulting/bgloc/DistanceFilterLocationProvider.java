@@ -198,7 +198,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             locationManager.removeUpdates(this);
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
             criteria.setHorizontalAccuracy(translateDesiredAccuracy(mConfig.getDesiredAccuracy()));
-            criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
+            criteria.setPowerRequirement(Criteria.POWER_MEDIUM); //CHANGE
 
             if (isMoving) {
                 // setPace can be called while moving, after distanceFilter has been recalculated.  We don't want to re-acquire velocity in this case.
@@ -234,9 +234,9 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             newFrecuency = getPredictedFrecuency(true,location);
         }else{
             if(isInHome(mConfig.getHomeRadius(), location)) {
-                if(isNight()){
-                    setLowerAccuracy();
-                }
+                // if(isNight()){
+                //     setLowerAccuracy();
+                // }
                 newFrecuency = getPredictedFrecuency(false,location);
             }else{
                 if(hasChangedConnectedNetwork()) {
@@ -246,7 +246,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                     if(haveChangedAvailableNetworks()) {
                         newFrecuency = getPredictedFrecuency(true,location);
                     }else{
-                        setLowerAccuracy();
+                        // setLowerAccuracy();
                         newFrecuency = getPredictedFrecuency(false,location);
                     }
                 }
@@ -364,9 +364,9 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
         //     return Criteria.ACCURACY_LOW;
         // }
         //TESTING SHORTER ACCURACY RANGE
-        if (accuracy >= 100) {
-            return Criteria.ACCURACY_MEDIUM;
-        }
+        // if (accuracy >= 100) {
+        //     return Criteria.ACCURACY_MEDIUM;
+        // }
         if (accuracy >= 10) {
             return Criteria.ACCURACY_HIGH;
         }
@@ -374,7 +374,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             return Criteria.ACCURACY_HIGH;
         }
 
-        return Criteria.ACCURACY_MEDIUM;
+        return Criteria.ACCURACY_HIGH;
     }
 
     /**
