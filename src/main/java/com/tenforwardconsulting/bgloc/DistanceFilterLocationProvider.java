@@ -333,23 +333,25 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
     }
 
     private void setLowerAccuracy() {
-        Integer accuracy = mConfig.getDesiredAccuracy();
-        if(accuracy >= 100) {
-            mConfig.setDesiredAccuracy(Criteria.ACCURACY_LOW);
-        }
-        else {
+        // Integer accuracy = mConfig.getDesiredAccuracy();
+        // if(accuracy >= 100) {
+        //     mConfig.setDesiredAccuracy(Criteria.ACCURACY_LOW);
+        // }
+        // else {
             mConfig.setDesiredAccuracy(Criteria.ACCURACY_MEDIUM);
-        }
+            // TESTING SHORTER ACCURACY RANGE
+        // }
     }
 
     private void setHigherAccuracy() {
-        Integer accuracy = mConfig.getDesiredAccuracy();
-        if (accuracy >= 1000) {
-            mConfig.setDesiredAccuracy(Criteria.ACCURACY_MEDIUM);
-        }
-        else {
+        // Integer accuracy = mConfig.getDesiredAccuracy();
+        // if (accuracy >= 1000) {
+        //     mConfig.setDesiredAccuracy(Criteria.ACCURACY_MEDIUM);
+        // }
+        // else {
             mConfig.setDesiredAccuracy(Criteria.ACCURACY_HIGH);
-        }
+            //TESTING SHORTER ACCURACY RANGE
+        // }
     }
 
     /**
@@ -358,9 +360,10 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
      * 1000:  least aggressive, least accurate, best for battery.
      */
     private Integer translateDesiredAccuracy(Integer accuracy) {
-        if (accuracy >= 1000) {
-            return Criteria.ACCURACY_LOW;
-        }
+        // if (accuracy >= 1000) {
+        //     return Criteria.ACCURACY_LOW;
+        // }
+        //TESTING SHORTER ACCURACY RANGE
         if (accuracy >= 100) {
             return Criteria.ACCURACY_MEDIUM;
         }

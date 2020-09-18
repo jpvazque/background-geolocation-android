@@ -112,9 +112,10 @@ public class RawLocationProvider extends AbstractLocationProvider implements Loc
      * 1000:  least aggressive, least accurate, best for battery.
      */
     private Integer translateDesiredAccuracy(Integer accuracy) {
-        if (accuracy >= 1000) {
-            return Criteria.ACCURACY_LOW;
-        }
+        // if (accuracy >= 1000) {
+        //     return Criteria.ACCURACY_LOW;
+        // }
+        // TESTING SHORTER ACCURACY RANGE
         if (accuracy >= 100) {
             return Criteria.ACCURACY_MEDIUM;
         }

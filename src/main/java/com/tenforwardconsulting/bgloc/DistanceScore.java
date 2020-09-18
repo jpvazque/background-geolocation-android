@@ -19,7 +19,7 @@ public class DistanceScore {
         LoggerManager.enableDBLogging();
         this.location = location;
         double homeRadius = mConfig.getHomeRadius();
-        double csRadius = Math.sqrt(mConfig.getCensusArea())/2;
+        double csRadius = Math.sqrt(mConfig.getCensusArea()); // remove /2 cause we want diameter
 
         al = -10; 
         bl = 0; 
