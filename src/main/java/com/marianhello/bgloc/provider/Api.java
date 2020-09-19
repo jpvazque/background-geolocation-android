@@ -75,10 +75,8 @@ public class Api {
             long diffHours = diffDates / (60 * 60 * 1000);
             prevDate.setTime(scoreDate.getTime()); // Update prevDate
 
-            if(diffHours == 1) {
-                if(score.getPending() == ScoreEntry.PENDING_TRUE){
-                    pendingScores.add(score);
-                }
+            if(diffHours == 1 && score.getPending() == ScoreEntry.PENDING_TRUE) {
+                pendingScores.add(score);
                 break;
             }
             if(diffHours > 1) { //Check if there are missing hours to sent them with the last recorded score
