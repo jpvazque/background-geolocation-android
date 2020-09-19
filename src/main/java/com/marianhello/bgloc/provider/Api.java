@@ -225,9 +225,5 @@ public class Api {
                 return null;
             }
         }
-
-        protected void onPostExecute(JSONObject response) {
-            logger.debug("CKAN_RESPONSE " + response.toString());
-        }
     }
 }
